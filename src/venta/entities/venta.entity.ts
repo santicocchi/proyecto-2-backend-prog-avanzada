@@ -1,6 +1,5 @@
 import { BaseEntity, Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Cliente } from "src/cliente/entities/cliente.entity";
-import { Usuario } from "src/usuario/entities/usuario.entity";
 import { FormaPago } from "src/forma_pago/entities/forma_pago.entity";
 import { DetalleVenta } from "src/detalle_venta/entities/detalle_venta.entity";
 

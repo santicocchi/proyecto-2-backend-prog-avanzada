@@ -1,32 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { MarcaService } from './marca.service';
 import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
+import { AuthGuardFactory } from 'src/middleware/auth.middleware';
+import { Permissions } from 'src/auth/permissions.enum';
 
 @Controller('marca')
 export class MarcaController {
   constructor(private readonly marcaService: MarcaService) {}
 
+  @UseGuards(AuthGuardFactory(Permissions.CREAR_MARCA))
   @Post()
   create(@Body() createMarcaDto: CreateMarcaDto) {
     return this.marcaService.create(createMarcaDto);
   }
 
+  @UseGuards(AuthGuardFactory(Permissions.LISTAR_MARCAS))
   @Get()
   findAll() {
     return this.marcaService.findAll();
   }
 
+  @UseGuards(AuthGuardFactory(Permissions.LISTAR_MARCAS))
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.marcaService.findOne(+id);
   }
 
+  @UseGuards(AuthGuardFactory(Permissions.EDITAR_MARCA))
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMarcaDto: UpdateMarcaDto) {
     return this.marcaService.update(+id, updateMarcaDto);
   }
 
+  @UseGuards(AuthGuardFactory(Permissions.ELIMINAR_MARCA))
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.marcaService.remove(+id);

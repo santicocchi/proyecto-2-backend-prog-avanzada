@@ -3,10 +3,20 @@ import { ProveedorService } from './proveedor.service';
 import { ProveedorController } from './proveedor.controller';
 import { JwtModule } from 'src/auth/jwt/jwt.module';
 import { UsersModule } from 'src/auth/users/users.module';
+import { Proveedor } from './entities/proveedor.entity';
+import { ProveedorRepository } from './proveedor.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [JwtModule, UsersModule],
+  imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([Proveedor])],
   controllers: [ProveedorController],
-  providers: [ProveedorService],
+  providers: [
+    ProveedorService,
+    {
+      provide: 'IProveedorRepository',
+      useClass: ProveedorRepository
+    }
+  ],
+  exports: [ProveedorService, TypeOrmModule],
 })
 export class ProveedorModule { }

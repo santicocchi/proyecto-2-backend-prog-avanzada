@@ -1,5 +1,5 @@
 import { Marca } from "src/marca/entities/marca.entity";
-import { BaseEntity, Column, CreateDateColumn,  Entity,  ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn,  DeleteDateColumn,  Entity,  ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('linea')
 export class Linea extends BaseEntity {
@@ -14,6 +14,10 @@ export class Linea extends BaseEntity {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    
+    @Column({ nullable: true })
+    deletedAt: Date;
 
     @ManyToMany(() => Marca, marca => marca.lineas)
     marcas: Marca[];

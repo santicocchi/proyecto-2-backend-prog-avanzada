@@ -19,11 +19,15 @@ export class Cliente extends BaseEntity {
     @Column({ length: 50 })
     telefono: string;
 
+
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @Column( {nullable: true })
+    deletedAt: Date;
 
     @ManyToOne(() => TipoDocumento, (tipo_documento) => tipo_documento.clientes)
     tipo_documento: TipoDocumento;

@@ -1,26 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
+import { IProductoRepository } from './interface/IProductoRepository';
+import { ProductoMapper } from './helpers/producto.mapper';
 
 @Injectable()
 export class ProductoService {
-  create(createProductoDto: CreateProductoDto) {
-    return 'This action adds a new producto';
+  constructor(
+    @Inject('IProductoRepository')
+    private readonly productoRepository: IProductoRepository
+  ) {}
+
+  async create(createProductoDto: CreateProductoDto) {
+    const producto = await this.productoRepository.create(createProductoDto);
+    return ProductoMapper.toCreateResponse(producto);
   }
 
-  findAll() {
-    return `This action returns all producto`;
+  async findAll(options?: any) {
+    const productos = await this.productoRepository.findAll(options);
+    return ProductoMapper.toListResponse(productos);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} producto`;
+  async advancedList(filters: any) {
+    const productos = await this.productoRepository.advancedList(filters);
+    return ProductoMapper.toListResponse(productos);
   }
 
-  update(id: number, updateProductoDto: UpdateProductoDto) {
-    return `This action updates a #${id} producto`;
+  async findOne(id: number) {
+    const producto = await this.productoRepository.findById(id);
+    if (!producto) throw new NotFoundException('Producto no encontrado');
+    return ProductoMapper.toResponse(producto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} producto`;
+  async update(id: number, updateProductoDto: UpdateProductoDto) {
+    const producto = await this.productoRepository.update(id, updateProductoDto);
+    if (!producto) throw new NotFoundException('Producto no encontrado');
+    return ProductoMapper.toResponse(producto);
+  }
+
+  async decreaseStock(id: number, cantidad: number) {
+    const producto = await this.productoRepository.decreaseStock(id, cantidad);
+    if (!producto) throw new NotFoundException('Producto no encontrado');
+    return ProductoMapper.toResponse(producto);
+  }
+
+  async remove(id: number) {
+    const producto = await this.productoRepository.findById(id);
+    if (!producto) throw new NotFoundException('Producto no encontrado');
+    await this.productoRepository.softDelete(id);
+    return ProductoMapper.toDeleteResponse(producto);
   }
 }

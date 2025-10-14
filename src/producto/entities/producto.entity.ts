@@ -24,8 +24,12 @@ export class Producto extends BaseEntity {
     @CreateDateColumn()
     createdAt: Date;
 
+
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @Column({ nullable: true })
+    deletedAt: Date;
 
     @OneToMany(() => ProveedorXProducto, proveedor_x_producto => proveedor_x_producto.producto)
     proveedor_x_producto: ProveedorXProducto[];

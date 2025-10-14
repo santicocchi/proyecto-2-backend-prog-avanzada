@@ -16,6 +16,9 @@ export class Marca extends BaseEntity{
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Column({ nullable: true })
+    deletedAt: Date;
+
     @ManyToMany(() => Linea, linea => linea.marcas)
     @JoinColumn( { name: 'linea_id' } )
     lineas: Linea[];

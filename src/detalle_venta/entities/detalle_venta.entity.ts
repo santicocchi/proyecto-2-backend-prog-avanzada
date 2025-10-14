@@ -26,4 +26,7 @@ export class DetalleVenta extends BaseEntity{
 
     @ManyToOne(() => Venta, venta => venta.detallesVenta)
     ventas: Venta;
+
+    @Column({ nullable: true })
+    deletedAt: Date;
 }

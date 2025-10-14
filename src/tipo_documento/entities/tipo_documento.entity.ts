@@ -15,6 +15,9 @@ export class TipoDocumento extends BaseEntity{
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Column({ nullable: true })
+    deletedAt: Date;
+
     @OneToMany(() => Cliente, cliente => cliente.tipo_documento)
     clientes: Cliente[];
 }

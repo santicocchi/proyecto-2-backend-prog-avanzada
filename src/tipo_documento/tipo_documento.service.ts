@@ -1,26 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateTipoDocumentoDto } from './dto/create-tipo_documento.dto';
 import { UpdateTipoDocumentoDto } from './dto/update-tipo_documento.dto';
+import { ITipoDocumentoRepository } from './interface/ITipo_documentoRepository';
 
 @Injectable()
 export class TipoDocumentoService {
-  create(createTipoDocumentoDto: CreateTipoDocumentoDto) {
-    return 'This action adds a new tipoDocumento';
+  constructor(
+    @Inject('ITipoDocumentoRepository')
+    private readonly tipoDocumentoRepository: ITipoDocumentoRepository 
+  ) {}
+  async create(data: CreateTipoDocumentoDto) {
+    return this.tipoDocumentoRepository.create(data);
   }
 
-  findAll() {
-    return `This action returns all tipoDocumento`;
+  async findAll(){
+    return this.tipoDocumentoRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tipoDocumento`;
+  async findOne(id: number) {
+    return this.tipoDocumentoRepository.findById(id);
   }
 
-  update(id: number, updateTipoDocumentoDto: UpdateTipoDocumentoDto) {
-    return `This action updates a #${id} tipoDocumento`;
+  async update(id: number, updateTipoDocumentoDto: UpdateTipoDocumentoDto) {
+    return this.tipoDocumentoRepository.update(id, updateTipoDocumentoDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tipoDocumento`;
-  }
+  // remove(id: number) {
+  //   return `This action removes a #${id} tipoDocumento`;
+  // }
 }

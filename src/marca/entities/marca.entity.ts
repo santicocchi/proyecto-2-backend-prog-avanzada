@@ -1,6 +1,6 @@
 import { Linea } from "src/linea/entities/linea.entity";
 import { Producto } from "src/producto/entities/producto.entity";
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('marca')
 export class Marca extends BaseEntity{
@@ -16,8 +16,15 @@ export class Marca extends BaseEntity{
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Column({ nullable: true })
+    deletedAt: Date;
+
     @ManyToMany(() => Linea, linea => linea.marcas)
-    @JoinColumn( { name: 'linea_id' } )
+    @JoinTable({
+        name: 'marca_linea', // nombre de la tabla intermedia
+        joinColumn: { name: 'marca_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'linea_id', referencedColumnName: 'id' },
+    })
     lineas: Linea[];
 
     @OneToMany(() => Producto, (producto) => producto.marca)

@@ -18,4 +18,7 @@ export class FormaPago extends BaseEntity{
 
     @OneToMany(() => Venta, (venta) => venta.formaPago)
     ventas: Venta[];
+
+    @Column({ nullable: true })
+    deletedAt: Date;
 }

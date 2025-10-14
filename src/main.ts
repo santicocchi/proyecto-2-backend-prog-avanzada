@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import * as cookieParser from 'cookie-parser';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 dotenv.config();
 
@@ -39,6 +40,22 @@ async function bootstrap() {
       }
     },
     credentials: true,
+  });
+
+    // ---- Swagger / OpenAPI ----
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Sistema de gestión de ventas')             // Título visible en Swagger UI
+    .setDescription('API para el sistema de gestión de ventas') // Descripción
+    .setVersion('1.0')                           // Versión
+    .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig, {});
+
+  // Monta Swagger UI en /docs 
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true, // conserva el token al refrescar la página
+    },
   });
 
   // Habilitar cookies

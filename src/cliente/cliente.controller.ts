@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ClienteService } from './cliente.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
@@ -17,8 +17,8 @@ export class ClienteController {
 
   @UseGuards(AuthGuardFactory(Permissions.LISTAR_CLIENTES))
   @Get()
-  findAll() {
-    return this.clienteService.findAll();
+  findAll(@Query() query: any) {
+    return this.clienteService.findAll(query);
   }
 
   @UseGuards(AuthGuardFactory(Permissions.OBTENER_CLIENTE))

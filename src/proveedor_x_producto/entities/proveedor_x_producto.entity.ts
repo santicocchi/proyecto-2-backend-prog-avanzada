@@ -1,6 +1,6 @@
 import { Producto } from "src/producto/entities/producto.entity";
 import { Proveedor } from "src/proveedor/entities/proveedor.entity";
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('proveedor_x_producto')
 export class ProveedorXProducto extends BaseEntity {
@@ -18,4 +18,13 @@ export class ProveedorXProducto extends BaseEntity {
 
     @Column({ length: 50 })
     codigo_proveedor: string;
+
+    @Column({ nullable: true })
+    deletedAt: Date;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

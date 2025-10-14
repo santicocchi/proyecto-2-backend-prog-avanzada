@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { ProductoService } from './producto.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
@@ -17,8 +17,15 @@ export class ProductoController {
 
   @UseGuards(AuthGuardFactory(Permissions.LISTAR_PRODUCTOS))
   @Get()
-  findAll() {
-    return this.productoService.findAll();
+  findAll(@Query() query: any) {
+    // query puede tener filtros de ordenamiento: sort, order, etc.
+    return this.productoService.findAll(query);
+  }
+
+  @UseGuards(AuthGuardFactory(Permissions.LISTAR_PRODUCTOS))
+  @Get('advanced')
+  advancedList(@Query() query: any) {
+    return this.productoService.advancedList(query);
   }
 
   @UseGuards(AuthGuardFactory(Permissions.OBTENER_PRODUCTO))
@@ -31,6 +38,12 @@ export class ProductoController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductoDto: UpdateProductoDto) {
     return this.productoService.update(+id, updateProductoDto);
+  }
+
+  @UseGuards(AuthGuardFactory(Permissions.EDITAR_PRODUCTO))
+  @Patch(':id/decrease-stock')
+  decreaseStock(@Param('id') id: string, @Body('cantidad') cantidad: number) {
+    return this.productoService.decreaseStock(+id, cantidad);
   }
 
   @UseGuards(AuthGuardFactory(Permissions.ELIMINAR_PRODUCTO))

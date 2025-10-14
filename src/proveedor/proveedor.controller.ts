@@ -4,6 +4,8 @@ import { CreateProveedorDto } from './dto/create-proveedor.dto';
 import { UpdateProveedorDto } from './dto/update-proveedor.dto';
 import { AuthGuardFactory } from 'src/middleware/auth.middleware';
 import { Permissions } from 'src/auth/permissions.enum';
+import { ValidarCuitPipe } from 'src/common/helpers/pipes/validar-cuit.pipe';
+
 
 @Controller('proveedor')
 export class ProveedorController {
@@ -11,6 +13,7 @@ export class ProveedorController {
 
   @UseGuards(AuthGuardFactory(Permissions.CREAR_PROVEEDOR))
   @Post()
+  // ValidarCuitPipe
   create(@Body() createProveedorDto: CreateProveedorDto) {
     return this.proveedorService.create(createProveedorDto);
   }

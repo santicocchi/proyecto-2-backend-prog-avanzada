@@ -1,26 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDetalleVentaDto } from './dto/create-detalle_venta.dto';
 import { UpdateDetalleVentaDto } from './dto/update-detalle_venta.dto';
+import { DetalleVentaRepository } from './detalle_venta.repository';
+import { DetalleVentaMapper } from './helpers/detalle_venta.mapper';
 
 @Injectable()
 export class DetalleVentaService {
-  create(createDetalleVentaDto: CreateDetalleVentaDto) {
-    return 'This action adds a new detalleVenta';
+  constructor(private readonly detalleVentaRepository: DetalleVentaRepository) {}
+
+  async create(createDetalleVentaDto: CreateDetalleVentaDto) {
+    const detalle = await this.detalleVentaRepository.create(createDetalleVentaDto);
+    return DetalleVentaMapper.toResponse(detalle);
   }
 
-  findAll() {
-    return `This action returns all detalleVenta`;
+  async findOne(id: number) {
+    const detalle = await this.detalleVentaRepository.findOne(id);
+    if (!detalle) throw new NotFoundException('Detalle de venta no encontrado');
+    return DetalleVentaMapper.toResponse(detalle);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} detalleVenta`;
+  async update(id: number, updateDetalleVentaDto: UpdateDetalleVentaDto) {
+    const detalle = await this.detalleVentaRepository.update(id, updateDetalleVentaDto);
+    if (!detalle) throw new NotFoundException('Detalle de venta no encontrado');
+    return DetalleVentaMapper.toResponse(detalle);
   }
 
-  update(id: number, updateDetalleVentaDto: UpdateDetalleVentaDto) {
-    return `This action updates a #${id} detalleVenta`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} detalleVenta`;
+  async remove(id: number) {
+    await this.detalleVentaRepository.softDelete(id);
+    return DetalleVentaMapper.toDeleteResponse(id);
   }
 }

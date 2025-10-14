@@ -1,26 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
+import { ClienteRepository } from './cliente.repository';
+import { ClienteMapper } from './helpers/cliente.mapper';
 
 @Injectable()
 export class ClienteService {
-  create(createClienteDto: CreateClienteDto) {
-    return 'This action adds a new cliente';
+  constructor(
+    private readonly clienteRepository: ClienteRepository,
+  ) {}
+
+  async create(createClienteDto: CreateClienteDto) {
+    const cliente = await this.clienteRepository.create(createClienteDto);
+    return ClienteMapper.toResponse(cliente);
   }
 
-  findAll() {
-    return `This action returns all cliente`;
+  async findAll(filter: any = {}) {
+    const clientes = await this.clienteRepository.findAll(filter);
+    return ClienteMapper.toResponseList(clientes);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cliente`;
+  async findOne(id: number) {
+    const cliente = await this.clienteRepository.findOne(id);
+    if (!cliente) throw new NotFoundException('Cliente no encontrado');
+    return ClienteMapper.toResponse(cliente);
   }
 
-  update(id: number, updateClienteDto: UpdateClienteDto) {
-    return `This action updates a #${id} cliente`;
+  async update(id: number, updateClienteDto: UpdateClienteDto) {
+    const cliente = await this.clienteRepository.update(id, updateClienteDto);
+    if (!cliente) throw new NotFoundException('Cliente no encontrado');
+    return ClienteMapper.toResponse(cliente);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cliente`;
+  async remove(id: number) {
+    const cliente = await this.clienteRepository.findOne(id);
+    if (!cliente) throw new NotFoundException('Cliente no encontrado');
+    await this.clienteRepository.softDelete(id);
+    return { message: 'Cliente eliminado correctamente' };
   }
 }

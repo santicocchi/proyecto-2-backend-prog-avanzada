@@ -1,26 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProveedorXProductoDto } from './dto/create-proveedor_x_producto.dto';
 import { UpdateProveedorXProductoDto } from './dto/update-proveedor_x_producto.dto';
+import { IProveedorXProductoRepository } from './interface/IProveedorXProductoRepository';
+import { ProveedorXProductoMapper } from './helpers/proveedor_x_producto.mapper';
 
 @Injectable()
 export class ProveedorXProductoService {
-  create(createProveedorXProductoDto: CreateProveedorXProductoDto) {
-    return 'This action adds a new proveedorXProducto';
+  constructor(
+    @Inject('IProveedorXProductoRepository')
+    private readonly pxpRepository: IProveedorXProductoRepository
+  ) {}
+
+  async create(createDto: CreateProveedorXProductoDto) {
+    const pxp = await this.pxpRepository.create(createDto);
+    return ProveedorXProductoMapper.toCreateResponse(pxp);
   }
 
-  findAll() {
-    return `This action returns all proveedorXProducto`;
+  async findAll() {
+    const pxps = await this.pxpRepository.findAll();
+    return ProveedorXProductoMapper.toListResponse(pxps);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} proveedorXProducto`;
+  async findOne(id: number) {
+    const pxp = await this.pxpRepository.findById(id);
+    if (!pxp) throw new NotFoundException('Relación proveedor-producto no encontrada');
+    return ProveedorXProductoMapper.toResponse(pxp);
   }
 
-  update(id: number, updateProveedorXProductoDto: UpdateProveedorXProductoDto) {
-    return `This action updates a #${id} proveedorXProducto`;
+  async update(id: number, updateDto: UpdateProveedorXProductoDto) {
+    const pxp = await this.pxpRepository.update(id, updateDto);
+    if (!pxp) throw new NotFoundException('Relación proveedor-producto no encontrada');
+    return ProveedorXProductoMapper.toResponse(pxp);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} proveedorXProducto`;
+  async remove(id: number) {
+    const pxp = await this.pxpRepository.findById(id);
+    if (!pxp) throw new NotFoundException('Relación proveedor-producto no encontrada');
+    await this.pxpRepository.softDelete(id);
+    return ProveedorXProductoMapper.toDeleteResponse(pxp);
   }
 }

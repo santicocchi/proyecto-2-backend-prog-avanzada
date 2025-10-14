@@ -15,11 +15,11 @@ export class DetalleVentaController {
     return this.detalleVentaService.create(createDetalleVentaDto);
   }
 
-  @UseGuards(AuthGuardFactory(Permissions.LISTAR_DETALLE_VENTAS))
-  @Get()
-  findAll() {
-    return this.detalleVentaService.findAll();
-  }
+  // @UseGuards(AuthGuardFactory(Permissions.LISTAR_DETALLE_VENTAS))
+  // @Get()
+  // findAll() {
+  //   return this.detalleVentaService.findAll();
+  // }
 
   @UseGuards(AuthGuardFactory(Permissions.OBTENER_DETALLE_VENTA))
   @Get(':id')

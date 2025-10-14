@@ -18,10 +18,17 @@ export class RoleRepository implements IRoleRepository {
         });
     }
     findOneById(id: number): Promise<RoleEntity | null> {
-        return this.repository.findOneBy({ id }).catch(err => {
+        return this.repository.findOne({ where: { id }, relations: ['permissionCodes'] }).catch(err => {
             throw new HttpException(err.message, err.status);
         });
     }
+
+    findOneByName(name: string): Promise<RoleEntity | null> {
+        return this.repository.findOne({ where: { name }, relations: ['permissionCodes'] }).catch(err => {
+            throw new HttpException(err.message, err.status);
+        });
+    }
+
     create(data: RoleEntity): Promise<RoleEntity> {
         const role = this.repository.create(data);
         return this.repository.save(role).catch(err => {

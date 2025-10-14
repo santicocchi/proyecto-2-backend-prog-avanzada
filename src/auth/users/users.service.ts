@@ -180,10 +180,8 @@ import { RegisterDTO } from '../interfaces/register.dto';
 import { LoginDTO } from '../interfaces/login.dto';
 import { SetRoleDto } from './dtos/setrole.dto';
 import { IUserRepository } from './iUsersRepository.interface';
-import { UserMapper } from './mappers/user.mapper';
 import { HashHelper } from 'src/common/helpers/hash.helper';
 import { IRoleRepository } from '../role/IRoleRepository.interface';
-import { IPermissionRepository } from '../permission/IPermissionRepository.interface';
 
 @Injectable()
 export class UsersService {
@@ -193,8 +191,6 @@ export class UsersService {
     private readonly userRepository: IUserRepository,
     @Inject('IRoleRepository')
     private readonly roleRepository: IRoleRepository,
-    @Inject('IPermissionRepository')
-    private readonly permissionRepository: IPermissionRepository,
   ) {}
 
   async refreshToken(refreshToken: string) {
@@ -222,7 +218,6 @@ export class UsersService {
       const existing = await this.userRepository.findOneByEmail(body.email);
       if (existing) throw new HttpException('El correo ya está registrado', 400);
 
-      // const user = UserMapper.toEntity(body);
       body.password = HashHelper.hash(body.password);
 
       const data = await this.userRepository.create(body);
@@ -268,7 +263,7 @@ export class UsersService {
       if (!role) throw new HttpException('Rol no encontrado', 404);
 
       user.role = user.role ? [...user.role, role] : [role];
-      await this.userRepository.update (user);
+      await this.userRepository.update(user);
       return HttpStatus.OK;
     } catch (error) {
       throw new HttpException(error.message, error.status);
@@ -299,12 +294,16 @@ export class UsersService {
     }
   }
 
-  // async eliminarUsuario(userId: number): Promise<any> {
-  //   try {
-  //     await this.userRepository.delete({ id: userId });
-  //     return HttpStatus.OK;
-  //   } catch (error) {
-  //     throw new HttpException(error.message || 'Error interno', error.status || 500);
-  //   }
-  // }
+    async listarRolesPorUsuario(id: number): Promise<RoleEntity[]> {
+    try {
+      const usuario = await this.userRepository.findOneById(id);
+      const rolesUsuario = usuario.role;
+      return rolesUsuario;
+    } catch (error) {
+      throw new HttpException(
+        error.message ?? 'Error al obtener los roles del usuario',
+        error.status ?? 500,
+      );
+    }
+  }
 }

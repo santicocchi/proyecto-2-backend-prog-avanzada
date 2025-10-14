@@ -34,14 +34,14 @@ export class MarcaController {
     return this.marcaService.update(+id, updateMarcaDto);
   }
 
-  @UseGuards(AuthGuardFactory(Permissions.EDITAR_MARCA))
-  @Post(':id/marcas/assign-linea')
+  @UseGuards(AuthGuardFactory(Permissions.ASIGNAR_LINEA_A_MARCA))
+  @Post(':id/assign-linea')
   assignLinea(@Param('id') id: string, @Body() body: LineaMarcaDto) {
     return this.marcaService.assignLinea(+id, body.lineaId);
   }
 
-  @UseGuards(AuthGuardFactory(Permissions.EDITAR_MARCA))
-  @Delete(':id/marcas/delete-linea')
+  @UseGuards(AuthGuardFactory(Permissions.ELIMINAR_LINEA_DE_MARCA))
+  @Delete(':id/delete-linea')
   removeLinea(@Param('id') id: string, @Body() body: LineaMarcaDto) {
     return this.marcaService.removeLinea(+id, body.lineaId);
   }

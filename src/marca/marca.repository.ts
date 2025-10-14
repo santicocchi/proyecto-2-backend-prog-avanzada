@@ -2,7 +2,7 @@ import { CreateMarcaDto } from "./dto/create-marca.dto";
 import { UpdateMarcaDto } from "./dto/update-marca.dto";
 import { Marca } from "./entities/marca.entity";
 import { IMarcaRepository } from "./interface/IMarcaRepository";
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { HttpException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Linea } from "../linea/entities/linea.entity";
@@ -88,36 +88,44 @@ export class MarcaRepository implements IMarcaRepository {
     }
 
     async assignLinea(marcaId: number, lineaId: number): Promise<{ success: boolean; message: string }> {
-        const marca = await this.repo.createQueryBuilder('marca')
-            .leftJoinAndSelect('marca.lineas', 'linea')
-            .where('marca.id = :marcaId', { marcaId })
-            .andWhere('marca.deletedAt IS NULL')
-            .getOne();
-        if (!marca) throw new NotFoundException('Marca no encontrada');
-        const linea = await this.lineaRepo.findOne({ where: { id: lineaId, deletedAt: null } });
-        if (!linea) throw new NotFoundException('Linea no encontrada');
-        if (marca.lineas && marca.lineas.some(l => l.id === linea.id)) {
-            return { success: false, message: `La linea ${linea.nombre} ya está asignada a la marca ${marca.nombre}` };
+        try {
+            const marca = await this.repo.createQueryBuilder('marca')
+                .leftJoinAndSelect('marca.lineas', 'linea')
+                .where('marca.id = :marcaId', { marcaId })
+                .andWhere('marca.deletedAt IS NULL')
+                .getOne();
+            if (!marca) throw new NotFoundException('Marca no encontrada');
+            const linea = await this.lineaRepo.findOne({ where: { id: lineaId, deletedAt: null } });
+            if (!linea) throw new NotFoundException('Linea no encontrada');
+            if (marca.lineas && marca.lineas.some(l => l.id === linea.id)) {
+                return { success: false, message: `La linea ${linea.nombre} ya está asignada a la marca ${marca.nombre}` };
+            }
+            marca.lineas = [...(marca.lineas || []), linea];
+            await this.repo.save(marca);
+            return { success: true, message: `La linea ${linea.nombre} fue asignada a la marca ${marca.nombre} con exito` };
+        } catch (error) {
+            throw new HttpException('Error al asignar la línea a la marca', 500);
         }
-        marca.lineas = [...(marca.lineas || []), linea];
-        await this.repo.save(marca);
-        return { success: true, message: `La linea ${linea.nombre} fue asignada a la marca ${marca.nombre} con exito` };
     }
     
     async removeLinea(marcaId: number, lineaId: number): Promise<{ success: boolean; message: string }> {
-        const marca = await this.repo.createQueryBuilder('marca')
-            .leftJoinAndSelect('marca.lineas', 'linea')
-            .where('marca.id = :marcaId', { marcaId })
-            .andWhere('marca.deletedAt IS NULL')
-            .getOne();
-        if (!marca) throw new NotFoundException('Marca no encontrada');
-        const linea = await this.lineaRepo.findOne({ where: { id: lineaId, deletedAt: null } });
-        if (!linea) throw new NotFoundException('Linea no encontrada');
-        if (!marca.lineas || !marca.lineas.some(l => l.id === linea.id)) {
-            return { success: false, message: `La linea ${linea.nombre} no está asignada a la marca ${marca.nombre}` };
+        try {
+            const marca = await this.repo.createQueryBuilder('marca')
+                .leftJoinAndSelect('marca.lineas', 'linea')
+                .where('marca.id = :marcaId', { marcaId })
+                .andWhere('marca.deletedAt IS NULL')
+                .getOne();
+            if (!marca) throw new NotFoundException('Marca no encontrada');
+            const linea = await this.lineaRepo.findOne({ where: { id: lineaId, deletedAt: null } });
+            if (!linea) throw new NotFoundException('Linea no encontrada');
+            if (!marca.lineas || !marca.lineas.some(l => l.id === linea.id)) {
+                return { success: false, message: `La linea ${linea.nombre} no está asignada a la marca ${marca.nombre}` };
+            }
+            marca.lineas = marca.lineas.filter(l => l.id !== linea.id);
+            await this.repo.save(marca);
+            return { success: true, message: `La linea ${linea.nombre} fue eliminada de la marca ${marca.nombre} con exito` };
+        } catch (error) {
+            throw new HttpException('Error al eliminar la línea de la marca', 500);
         }
-        marca.lineas = marca.lineas.filter(l => l.id !== linea.id);
-        await this.repo.save(marca);
-        return { success: true, message: `La linea ${linea.nombre} fue eliminada de la marca ${marca.nombre} con exito` };
     }
 }

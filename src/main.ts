@@ -44,8 +44,8 @@ async function bootstrap() {
 
     // ---- Swagger / OpenAPI ----
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('IMC Calculator API')             // Título visible en Swagger UI
-    .setDescription('API para calcular y guardar IMC') // Descripción
+    .setTitle('Sistema de gestión de ventas')             // Título visible en Swagger UI
+    .setDescription('API para el sistema de gestión de ventas') // Descripción
     .setVersion('1.0')                           // Versión
     .build();
 

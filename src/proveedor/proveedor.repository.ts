@@ -2,7 +2,7 @@ import { CreateProveedorDto } from "./dto/create-proveedor.dto";
 import { UpdateProveedorDto } from "./dto/update-proveedor.dto";
 import { Proveedor } from "./entities/proveedor.entity";
 import { IProveedorRepository } from "./interface/IProveedorRepository";
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { HttpException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
@@ -18,7 +18,7 @@ export class ProveedorRepository implements IProveedorRepository {
             const proveedor = this.repo.create(dto);
             return await this.repo.save(proveedor);
         } catch (error) {
-            throw new InternalServerErrorException('Error al crear el proveedor');
+            throw new  HttpException('Error al crear el proveedor', 500);
         }
     }
 

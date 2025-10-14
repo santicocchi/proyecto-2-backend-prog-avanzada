@@ -6,9 +6,10 @@ import { UsersModule } from 'src/auth/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cliente } from './entities/cliente.entity';
 import { ClienteRepository } from './cliente.repository';
+import { TipoDocumento } from 'src/tipo_documento/entities/tipo_documento.entity';
 
 @Module({
-  imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([Cliente])],
+  imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([Cliente, TipoDocumento])],
   controllers: [ClienteController],
   providers: [ClienteService, ClienteRepository],
   exports: [ClienteRepository],

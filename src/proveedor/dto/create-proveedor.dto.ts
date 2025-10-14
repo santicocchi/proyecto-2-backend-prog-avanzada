@@ -14,5 +14,7 @@ export class CreateProveedorDto {
   @Length(1, 150)
   direccion: string;
 
+  @IsString()
+  @IsNotEmpty()
   cuit: string;
 }

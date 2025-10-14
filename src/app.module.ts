@@ -20,11 +20,11 @@ import { RoleModule } from './auth/role/role.module';
 import { PermissionEntity } from './auth/permission/entities/permission.entity';
 
 @Module({
-  imports: [LineaModule, MarcaModule, ProveedorModule, 
-    ProductoModule, DetalleVentaModule, VentaModule, 
+  imports: [LineaModule, MarcaModule, ProveedorModule,
+    ProductoModule, DetalleVentaModule, VentaModule,
     FormaPagoModule, ClienteModule, TipoDocumentoModule,
     ProveedorXProductoModule, JwtModule, UsersModule, RoleModule, PermissionEntity,
-  TypeOrmModule.forRootAsync({
+    TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -44,4 +44,4 @@ import { PermissionEntity } from './auth/permission/entities/permission.entity';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

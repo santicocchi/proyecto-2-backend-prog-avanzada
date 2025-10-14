@@ -5,7 +5,7 @@ import { Cliente } from "../entities/cliente.entity";
 export interface IClienteRepository {
   create(data: CreateClienteDto): Promise<Cliente>;
   findAll(filter: any): Promise<Cliente[]>;
-  findOne(id: number): Promise<Cliente | null>;
-  update(id: number, data: UpdateClienteDto): Promise<Cliente | null>;
+  findOne(id: number): Promise<Cliente>;
+  update(id: number, data: UpdateClienteDto): Promise<Cliente>;
   softDelete(id: number): Promise<void>;
 }

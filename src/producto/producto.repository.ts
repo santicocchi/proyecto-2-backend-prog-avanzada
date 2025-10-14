@@ -2,11 +2,12 @@ import { CreateProductoDto } from "./dto/create-producto.dto";
 import { UpdateProductoDto } from "./dto/update-producto.dto";
 import { Producto } from "./entities/producto.entity";
 import { IProductoRepository } from "./interface/IProductoRepository";
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { HttpException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Marca } from "../marca/entities/marca.entity";
 import { ProveedorXProducto } from "../proveedor_x_producto/entities/proveedor_x_producto.entity";
+import { Linea } from "src/linea/entities/linea.entity";
 
 @Injectable()
 export class ProductoRepository implements IProductoRepository {
@@ -19,25 +20,19 @@ export class ProductoRepository implements IProductoRepository {
         private readonly pxpRepo: Repository<ProveedorXProducto>
     ) {}
 
-    async create(dto: CreateProductoDto): Promise<Producto> {
+    async create(data: {
+        nombre: string;
+        descripcion: string;
+        precio: number;
+        stock: number;
+        marca: Marca;
+        linea: Linea;
+    }): Promise<Producto> {
         try {
-            // Aquí deberías validar que la línea pertenezca a la marca seleccionada
-            // y asociar correctamente la marca y la línea
-            // ...
-            // Por simplicidad, solo se asocia la marca
-            const marca = await this.marcaRepo.findOne({ where: { id: dto.marcaId, deletedAt: null }, relations: ['lineas'] });
-            if (!marca) throw new NotFoundException('Marca no encontrada');
-            // Aquí podrías validar la línea si es necesario
-            const producto = this.repo.create({
-                nombre: dto.nombre,
-                descripcion: dto.descripcion,
-                precio: dto.precio,
-                stock: dto.stock,
-                marca: marca
-            });
+            const producto = this.repo.create(data);
             return await this.repo.save(producto);
         } catch (error) {
-            throw new InternalServerErrorException('Error al crear el producto');
+            throw new HttpException('Error al crear el producto', 500);
         }
     }
 
@@ -49,7 +44,7 @@ export class ProductoRepository implements IProductoRepository {
                 relations: ['marca', 'marca.lineas', 'proveedor_x_producto', 'proveedor_x_producto.proveedor']
             });
         } catch (error) {
-            throw new InternalServerErrorException('Error al obtener los productos');
+            throw new HttpException('Error al obtener los productos', 500);
         }
     }
 
@@ -60,7 +55,7 @@ export class ProductoRepository implements IProductoRepository {
                 relations: ['marca', 'marca.lineas', 'proveedor_x_producto', 'proveedor_x_producto.proveedor']
             });
         } catch (error) {
-            throw new InternalServerErrorException('Error al obtener el producto');
+            throw new HttpException('Error al obtener el producto', 500);
         }
     }
 
@@ -74,13 +69,13 @@ export class ProductoRepository implements IProductoRepository {
             if (dto.stock) producto.stock = dto.stock;
             // Si se quiere cambiar la marca, validar y asignar
             if (dto.marcaId) {
-                const marca = await this.marcaRepo.findOne({ where: { id: dto.marcaId, deletedAt: null }, relations: ['lineas'] });
+                const marca = await this.marcaRepo.findOne({ where: { id: dto.marcaId.id, deletedAt: null }, relations: ['lineas'] });
                 if (!marca) throw new NotFoundException('Marca no encontrada');
                 producto.marca = marca;
             }
             return await this.repo.save(producto);
         } catch (error) {
-            throw new InternalServerErrorException('Error al actualizar el producto');
+            throw new HttpException('Error al actualizar el producto', 500);
         }
     }
 
@@ -92,7 +87,7 @@ export class ProductoRepository implements IProductoRepository {
             await this.repo.save(producto);
             return true;
         } catch (error) {
-            throw new InternalServerErrorException('Error al eliminar el producto');
+            throw new HttpException('Error al eliminar el producto', 500);
         }
     }
 
@@ -103,7 +98,7 @@ export class ProductoRepository implements IProductoRepository {
             producto.stock = Math.max(0, producto.stock - cantidad);
             return await this.repo.save(producto);
         } catch (error) {
-            throw new InternalServerErrorException('Error al disminuir el stock');
+            throw new HttpException('Error al disminuir el stock del producto', 500);
         }
     }
 

@@ -1,18 +1,48 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { IProductoRepository } from './interface/IProductoRepository';
 import { ProductoMapper } from './helpers/producto.mapper';
+import { IMarcaRepository } from 'src/marca/interface/IMarcaRepository';
+import { ILineaRepository } from 'src/linea/interface/ILineaRepository';
 
 @Injectable()
 export class ProductoService {
   constructor(
     @Inject('IProductoRepository')
-    private readonly productoRepository: IProductoRepository
-  ) {}
+    private readonly productoRepository: IProductoRepository,
+    @Inject('IMarcaRepository')
+    private readonly marcaRepo: IMarcaRepository,
+    @Inject('ILineaRepository')
+    private readonly lineaRepo: ILineaRepository,
+  ) { }
 
-  async create(createProductoDto: CreateProductoDto) {
-    const producto = await this.productoRepository.create(createProductoDto);
+
+  async create(dto: CreateProductoDto) {
+    //  Buscar la marca con sus líneas
+    const marca = await this.marcaRepo.findById(dto.marcaId.id);
+    if (!marca) throw new NotFoundException('Marca no encontrada');
+
+    //  Buscar la línea
+    const linea = await this.lineaRepo.findById(dto.lineaId.id);
+    if (!linea) throw new NotFoundException('Línea no encontrada');
+
+    //  Validar que la línea pertenezca a la marca
+    const lineaPertenece = marca.lineas.some((l) => l.id === linea.id);
+    if (!lineaPertenece) {
+      throw new BadRequestException(
+        `La línea con ID ${dto.lineaId} no pertenece a la marca ${marca.nombre}`,
+      );
+    }
+    const producto = await this.productoRepository.create({
+      nombre: dto.nombre,
+      descripcion: dto.descripcion,
+      precio: dto.precio,
+      stock: dto.stock,
+      marca,
+      linea,
+    });
+    // Mapear la respuesta
     return ProductoMapper.toCreateResponse(producto);
   }
 

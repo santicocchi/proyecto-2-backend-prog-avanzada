@@ -1,15 +1,16 @@
 import { DetalleVenta } from "src/detalle_venta/entities/detalle_venta.entity";
+import { Linea } from "src/linea/entities/linea.entity";
 import { Marca } from "src/marca/entities/marca.entity";
 import { Proveedor } from "src/proveedor/entities/proveedor.entity";
 import { ProveedorXProducto } from "src/proveedor_x_producto/entities/proveedor_x_producto.entity";
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity,  ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('producto')
 export class Producto extends BaseEntity {
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ length: 100 })
+    @Column({ length: 100, unique: true })
     nombre: string;
 
     @Column({ length: 150 })
@@ -24,7 +25,6 @@ export class Producto extends BaseEntity {
     @CreateDateColumn()
     createdAt: Date;
 
-
     @UpdateDateColumn()
     updatedAt: Date;
 
@@ -36,6 +36,9 @@ export class Producto extends BaseEntity {
 
     @ManyToOne(() => Marca, marca => marca.productos)
     marca: Marca;
+
+    @ManyToOne(() => Linea, linea => linea.productos)
+    linea: Linea;
 
     @OneToMany(() => DetalleVenta, detalle_venta => detalle_venta.producto)
     detalleVentas: DetalleVenta[];

@@ -6,7 +6,7 @@ export class ClienteMapper {
       id: cliente.id,
       nombre: cliente.nombre,
       apellido: cliente.apellido,
-      tipo_documento: cliente.tipo_documento,
+      tipo_documento: cliente.tipo_documento.nombre,
       num_documento: cliente.num_documento,
       telefono: cliente.telefono,
       createdAt: cliente.createdAt,

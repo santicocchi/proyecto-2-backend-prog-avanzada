@@ -8,10 +8,6 @@ export class CreateDetalleVentaDto {
   @IsNumber()
   cantidad: number;
 
-  // @ApiProperty({ type: Number, example: 10.50 })
-  @IsNumber()
-  subtotal: number;
-
   // @ApiProperty({ type: () => Producto, example: 1 })
   @IsNumber()
   productoId: number;

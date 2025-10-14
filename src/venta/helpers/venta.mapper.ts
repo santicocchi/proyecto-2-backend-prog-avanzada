@@ -3,9 +3,9 @@ export class VentaMapper {
     return {
       id: venta.id,
       fecha: venta.fecha_venta,
-      cliente: venta.cliente,
-      responsable: venta.responsable,
-      formaPago: venta.formaPago,
+      cliente: venta.cliente.nombre + ' ' + venta.cliente.apellido + ' - ' + venta.cliente.num_documento,
+      responsable: venta.responsable.id + ' - ' + venta.responsable.email + ' - ',
+      formaPago: venta.formaPago.nombre,
       detallesVenta: venta.detallesVenta,
       total: venta.total,
       createdAt: venta.createdAt,
@@ -17,9 +17,9 @@ export class VentaMapper {
     return ventas.map(v => ({
       id: v.id,
       fecha: v.fecha_venta,
-      cliente: v.cliente,
-      responsable: v.responsable,
-      formaPago: v.formaPago,
+      cliente: v.cliente.nombre + ' ' + v.cliente.apellido + ' - ' + v.cliente.num_documento,
+      responsable: v.responsable.id + ' - ' + v.responsable.email,
+      formaPago: v.formaPago.nombre,
       detallesVenta: v.detallesVenta,
       total: v.total,
     }));

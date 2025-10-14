@@ -6,9 +6,8 @@ import { RoleEntity } from "./entities/role.entity";
 export interface IRoleRepository {
   findAll(): Promise<RoleEntity[]>;
   findOneById(id: number): Promise<RoleEntity | null>;
-  // findOne(options: any): Promise<RoleEntity | null>;
-  
+  findOneByName(name: string): Promise<RoleEntity | null>;
   create(data: RoleDto): Promise<RoleEntity>;
-  // update(entity: RoleEntity): Promise<RoleEntity>;
+  update(entity: RoleEntity): Promise<RoleEntity>;
   deleteById(id: number): Promise<DeleteResult>;
 }

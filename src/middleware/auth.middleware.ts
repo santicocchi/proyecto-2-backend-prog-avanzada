@@ -19,13 +19,13 @@ export function AuthGuardFactory(permissionCode: string): Type<CanActivate> {
     constructor(
       private readonly jwtService: JwtService,
       private readonly usersService: UsersService,
-    ) {}
+    ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
       try {
         const request = context
           .switchToHttp()
-          .getRequest<Request & { user?: UserEntity;}>();
+          .getRequest<Request & { user?: UserEntity; }>();
 
         // 1) Token de cookie
         const token = request.cookies?.['access_token'];
@@ -77,4 +77,32 @@ export function AuthGuardFactory(permissionCode: string): Type<CanActivate> {
   }
 
   return mixin(AuthGuardWithPermission);
+}
+
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  constructor(
+    private jwtService: JwtService,
+    private usersService: UsersService,
+  ) { }
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<Request & { user: UserEntity }>();
+    const token = request.cookies['access_token'];
+
+    if (!token) throw new UnauthorizedException('Token no proporcionado');
+
+    const payload = this.jwtService.getPayload(token);
+
+    // console.log("payload", payload);
+
+    const user = await this.usersService.findByEmail(payload['email'] ?? payload['mail']);
+    if (user) {
+      request.user = user;
+      return true;
+    }
+
+    throw new UnauthorizedException();
+  }
 }

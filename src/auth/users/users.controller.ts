@@ -7,7 +7,9 @@ import { LoginDTO } from '../interfaces/login.dto';
 import { RegisterDTO } from '../interfaces/register.dto';
 import { UserEntity } from './entities/user.entity';
 import { Permissions } from 'src/auth/permissions.enum';
-import { AuthGuardFactory } from 'src/middleware/auth.middleware';
+import { AuthGuard, AuthGuardFactory } from 'src/middleware/auth.middleware';
+import { RoleEntity } from '../role/entities/role.entity';
+import { RequestWithUser } from '../interfaces/request-user';
 
 @Controller('users')
 export class UsersController {
@@ -25,9 +27,9 @@ export class UsersController {
     return await this.service.list()
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('me')
-  me(@Req() req) {
+  me(@Req() req : RequestWithUser) {
     const user = req.user
     return {
       id: user.id,
@@ -144,11 +146,13 @@ export class UsersController {
     return this.service.quitarRol(userId, roleId);
   }
 
-  // @UseGuards(AuthGuardFactory(Permissions.ELIMINAR_USUARIO))
-  // @Delete('/eliminar/:userId')
-  // async eliminarUsuario(
-  //   @Param('userId', ParseIntPipe) userId: number
-  // ) {
-  //   return this.service.eliminarUsuario(userId);
-  // }
+  
+  @HttpCode(200)
+  @Get(':id/roles')
+  async listarRolesPorUsuario(
+    @Param('id') id: number
+  ): Promise<RoleEntity[]> {
+    return await this.service.listarRolesPorUsuario(id)
+  }
+
 }

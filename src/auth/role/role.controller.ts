@@ -43,11 +43,11 @@ export class RoleController {
     return await this.service.setPermission({id},body)
   }
 
-  @HttpCode(200)
-//   @Get('/user/:id')
-  async listarRolesPorUsuario(
-    @Param('id') id: number
-  ): Promise<RoleEntity[]> {
-    return await this.service.listarRolesPorUsuario(id)
-  }
+//   @HttpCode(200)
+// //   @Get('/user/:id')
+//   async listarRolesPorUsuario(
+//     @Param('id') id: number
+//   ): Promise<RoleEntity[]> {
+//     return await this.service.listarRolesPorUsuario(id)
+//   }
 }

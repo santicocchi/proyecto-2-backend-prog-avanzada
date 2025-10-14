@@ -1,10 +1,12 @@
+import { DeleteResult } from "typeorm";
+import { PermissionDto } from "./dtos/permission.dto";
 import { PermissionEntity } from "./entities/permission.entity";
 
 // src/common/interfaces/irepository.interface.ts
 export interface IPermissionRepository {
   findAll(): Promise<PermissionEntity[]>;
-  findOneBy(filter: Partial<PermissionEntity>): Promise<PermissionEntity | null>;
-  findOne(options: any): Promise<PermissionEntity | null>;
-  save(entity: PermissionEntity): Promise<PermissionEntity>;
-  delete(filter: Partial<PermissionEntity>): Promise<void>;
+  findOneById(id: number): Promise<PermissionEntity | null>;
+  create(data: PermissionDto): Promise<PermissionEntity>;
+  update(id: number, nombreNuevoPermiso: string ): Promise<PermissionEntity>;
+  deleteById(id: number): Promise<DeleteResult>;
 }

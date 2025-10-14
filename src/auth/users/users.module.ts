@@ -9,9 +9,11 @@ import { JwtService } from '../jwt/jwt.service';
 import { UsersRepository } from './users.repository';
 import { RoleRepository } from '../role/role.repository';
 import { PermissionRepository } from '../permission/permission.repository';
+import { UsersController } from './users.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, RoleEntity, PermissionEntity])],
+  controllers: [UsersController],
   providers: [
     UsersService,
     JwtService,
@@ -22,10 +24,6 @@ import { PermissionRepository } from '../permission/permission.repository';
     {
       provide: 'IRoleRepository',
       useClass: RoleRepository,
-    },
-    {
-      provide: 'IPermissionRepository',
-      useClass: PermissionRepository,
     },
   ],
   exports: [UsersService],

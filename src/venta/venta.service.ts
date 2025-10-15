@@ -9,6 +9,7 @@ import { IUserRepository } from 'src/auth/users/iUsersRepository.interface';
 import { IProductoRepository } from 'src/producto/interface/IProductoRepository';
 import { DetalleVenta } from 'src/detalle_venta/entities/detalle_venta.entity';
 import { Venta } from './entities/venta.entity';
+import { FindAdvancedDto } from './dto/find-advanced.dto';
 
 @Injectable()
 export class VentaService {
@@ -87,9 +88,34 @@ export class VentaService {
     return VentaMapper.toListResponse(ventas);
   }
 
-  async findAdvanced(filter: any) {
-    const ventas = await this.ventaRepository.findAdvanced(filter);
-    return VentaMapper.toListResponse(ventas);
+  async findAdvanced(filter: FindAdvancedDto) {
+
+
+    // Validaciones: si el filtro incluye ids referenciales, verificar que existan
+    try {
+      if (filter?.clienteId) {
+        const cliente = await this.clienteRepo.findOne(filter.clienteId);
+        if (!cliente) throw new NotFoundException('Cliente no encontrado');
+      }
+
+      if (filter?.formaPagoId) {
+        const formaPago = await this.formaPagoRepo.findOne(filter.formaPagoId);
+        if (!formaPago) throw new NotFoundException('Forma de pago no encontrada');
+      }
+
+      if (filter?.userId) {
+        const responsable = await this.userRepo.findOneById(filter.userId);
+        if (!responsable) throw new NotFoundException('Usuario responsable no encontrado');
+      }
+
+      const ventas = await this.ventaRepository.findAdvanced(filter);
+      return VentaMapper.toListResponse(ventas);
+    }
+    catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      console.error(error);
+      throw new HttpException('Error interno del servidor', 500);
+    }
   }
 
   async findOne(id: number) {

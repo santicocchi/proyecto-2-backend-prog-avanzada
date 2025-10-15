@@ -1,3 +1,4 @@
+//src/venta/venta.service.ts
 import { BadRequestException, HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateVentaDto } from './dto/create-venta.dto';
 import { UpdateVentaDto } from './dto/update-venta.dto';
@@ -10,6 +11,8 @@ import { IProductoRepository } from 'src/producto/interface/IProductoRepository'
 import { DetalleVenta } from 'src/detalle_venta/entities/detalle_venta.entity';
 import { Venta } from './entities/venta.entity';
 import { FindAdvancedDto } from './dto/find-advanced.dto';
+import { EntityExistsValidator } from 'src/common/validators/entity-exists.validator';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class VentaService {
@@ -24,61 +27,98 @@ export class VentaService {
     private readonly userRepo: IUserRepository,
     @Inject('IProductoRepository')
     private readonly productoRepo: IProductoRepository,
+    private readonly dataSource: DataSource
 
   ) { }
 
   async create(dto: CreateVentaDto) {
     try {
-      // 1️⃣ Buscar entidades base
-      const cliente = await this.clienteRepo.findOne(dto.clienteId);
-      if (!cliente) throw new NotFoundException('Cliente no encontrado');
+      return await this.dataSource.transaction(async (manager) => {
+        // Buscar entidades base
+        const cliente = await EntityExistsValidator.validate(
+          this.clienteRepo.findOne(dto.clienteId),
+          'Cliente',
+        );
 
-      const formaPago = await this.formaPagoRepo.findOne(dto.formaPagoId);
-      if (!formaPago) throw new NotFoundException('Forma de pago no encontrada');
+        const formaPago = await EntityExistsValidator.validate(
+          this.formaPagoRepo.findOne(dto.formaPagoId),
+          'Forma de pago',
+        );
 
-      const responsable = await this.userRepo.findOneById(dto.userId);
-      if (!responsable) throw new NotFoundException('Usuario responsable no encontrado');
+        const responsable = await EntityExistsValidator.validate(
+          this.userRepo.findOneById(dto.userId),
+          'Usuario responsable',
+        );
 
-      // 2️⃣ Preparar detalles de venta
-      const detalles: DetalleVenta[] = [];
-      let total = 0;
+        // Preparar detalles y validar stock
+        const detalles: DetalleVenta[] = [];
+        let total = 0;
 
-      for (const det of dto.detallesVenta) {
-        const producto = await this.productoRepo.findById(det.productoId);
-        if (!producto)
-          throw new BadRequestException(
-            `Producto con ID ${det.productoId} no encontrado`,
+        for (const det of dto.detallesVenta) {
+          const producto = await EntityExistsValidator.validate(
+            this.productoRepo.findById(det.productoId),
+            `Producto con ID ${det.productoId}`,
           );
 
-        const subtotal = Number((det.cantidad * Number(producto.precio)).toFixed(2));
+          //  Verificar stock disponible
+          if (producto.stock < det.cantidad) {
+            throw new BadRequestException(
+              `Stock insuficiente para el producto "${producto.nombre}". Disponible: ${producto.stock}, solicitado: ${det.cantidad}`,
+            );
+          }
 
-        const detalle = new DetalleVenta();
-        detalle.cantidad = det.cantidad;
-        detalle.subtotal = subtotal;
-        detalle.producto = producto;
+          // Calcular subtotal y preparar detalle
+          const subtotal = Number((det.cantidad * Number(producto.precio)).toFixed(2));
 
-        detalles.push(detalle);
-        total += subtotal;
-      }
+          // Disminuir stock
+          await this.productoRepo.decreaseStock(producto.id, det.cantidad);
 
-      // 3️⃣ Crear la venta (a nivel de dominio)
-      const venta = new Venta();
-      venta.fecha_venta = dto.fecha_venta;
-      venta.cliente = cliente;
-      venta.formaPago = formaPago;
-      venta.responsable = responsable;
-      venta.detallesVenta = detalles;
-      venta.total = total;
+          const detalle = new DetalleVenta();
+          detalle.cantidad = det.cantidad;
+          detalle.subtotal = subtotal;
+          detalle.producto = producto;
 
-      // 4️⃣ Persistir en la base
-      const ventaCreada = await this.ventaRepository.create(venta);
+          detalles.push(detalle);
+          total += subtotal;
+        }
 
-      // 5️⃣ Mapear respuesta
-      return VentaMapper.toResponse(ventaCreada);
+        //  Crear la venta (entidad principal)
+        const venta = manager.create(Venta, {
+          fecha_venta: dto.fecha_venta,
+          cliente,
+          formaPago,
+          responsable,
+          total,
+        });
+
+        //  Guardar venta primero (sin detalles aún)
+        const ventaGuardada = await manager.save(Venta, venta);
+
+        //  Asociar los detalles a la venta
+        for (const det of detalles) {
+          det.ventas = ventaGuardada;
+          await manager.save(DetalleVenta, det);
+        }
+
+        // Volver a cargar la venta completa con relaciones
+        const ventaFinal = await manager.findOne(Venta, {
+          where: { id: ventaGuardada.id },
+          relations: [
+            'cliente',
+            'formaPago',
+            'responsable',
+            'detallesVenta',
+            'detallesVenta.producto',
+          ],
+        });
+
+        return VentaMapper.toResponse(ventaFinal);
+      });
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof NotFoundException)
         throw error;
-      console.error(error);
+
+      console.error('Error en la creación de la venta:', error);
       throw new HttpException('Error interno del servidor', 500);
     }
   }
@@ -89,29 +129,27 @@ export class VentaService {
   }
 
   async findAdvanced(filter: FindAdvancedDto) {
-
-
-    // Validaciones: si el filtro incluye ids referenciales, verificar que existan
     try {
-      if (filter?.clienteId) {
-        const cliente = await this.clienteRepo.findOne(filter.clienteId);
-        if (!cliente) throw new NotFoundException('Cliente no encontrado');
-      }
+      if (filter?.clienteId)
+        await EntityExistsValidator.validate(this.clienteRepo.findOne(filter.clienteId), 'Cliente');
 
-      if (filter?.formaPagoId) {
-        const formaPago = await this.formaPagoRepo.findOne(filter.formaPagoId);
-        if (!formaPago) throw new NotFoundException('Forma de pago no encontrada');
-      }
+      if (filter?.formaPagoId)
+        await EntityExistsValidator.validate(this.formaPagoRepo.findOne(filter.formaPagoId), 'Forma de pago');
 
-      if (filter?.userId) {
-        const responsable = await this.userRepo.findOneById(filter.userId);
-        if (!responsable) throw new NotFoundException('Usuario responsable no encontrado');
-      }
+      if (filter?.userId)
+        await EntityExistsValidator.validate(this.userRepo.findOneById(filter.userId), 'Usuario responsable');
 
-      const ventas = await this.ventaRepository.findAdvanced(filter);
-      return VentaMapper.toListResponse(ventas);
-    }
-    catch (error) {
+      const [ventas, total] = await this.ventaRepository.findAdvanced(filter);
+
+      return {
+        data: VentaMapper.toListResponse(ventas),
+        pagination: {
+          total,
+          page: filter.page,
+          take: filter.take,
+        },
+      };
+    } catch (error) {
       if (error instanceof NotFoundException) throw error;
       console.error(error);
       throw new HttpException('Error interno del servidor', 500);

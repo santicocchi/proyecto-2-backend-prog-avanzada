@@ -1,3 +1,4 @@
+//src/venta/venta.module.ts
 import { forwardRef, Module } from '@nestjs/common';
 import { VentaService } from './venta.service';
 import { VentaController } from './venta.controller';

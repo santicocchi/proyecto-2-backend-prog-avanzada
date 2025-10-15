@@ -1,3 +1,4 @@
+// src/producto/dto/create-producto.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import { IsNotEmpty, IsString, IsNumber, IsPositive, Min, ValidateNested} from "class-validator";

@@ -1,5 +1,8 @@
+import { Venta } from "../entities/venta.entity";
+
+//src/venta/helpers/venta.mapper.ts
 export class VentaMapper {
-  static toResponse(venta: any) {
+  static toResponse(venta: Venta) {
     return {
       id: venta.id,
       fecha: venta.fecha_venta,
@@ -13,7 +16,7 @@ export class VentaMapper {
     };
   }
 
-  static toListResponse(ventas: any[]) {
+  static toListResponse(ventas: Venta[]) {
     return ventas.map(v => ({
       id: v.id,
       fecha: v.fecha_venta,

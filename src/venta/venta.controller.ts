@@ -1,3 +1,4 @@
+//src/venta/venta.controller.ts
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ValidationPipe } from '@nestjs/common';
 import { VentaService } from './venta.service';
 import { CreateVentaDto } from './dto/create-venta.dto';
@@ -6,6 +7,8 @@ import { AuthGuardFactory } from 'src/middleware/auth.middleware';
 import { Permissions } from 'src/auth/permissions.enum';
 import { FindAdvancedDto } from './dto/find-advanced.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { query } from 'express';
+import { FindAdvancedPipe } from './pipes/find-advanced.pipe';
 
 @ApiTags('venta')
 @Controller('venta')
@@ -32,7 +35,7 @@ export class VentaController {
   @ApiQuery({ name: 'formaPagoId', required: false, type: Number })
   @ApiQuery({ name: 'userId', required: false, type: Number })
   @ApiQuery({ name: 'total', required: false, type: Number })
-  findAdvanced(@Query(new ValidationPipe({ transform: true, whitelist: true })) query: FindAdvancedDto) {
+  findAdvanced(@Query(FindAdvancedPipe) query: FindAdvancedDto) {
     return this.ventaService.findAdvanced(query);
   }
 

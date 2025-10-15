@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsPositive, IsDateString, ValidateNested, ArrayMinSize } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsPositive, IsDateString, ValidateNested, ArrayMinSize, IsDate } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateDetalleVentaInput {
@@ -18,7 +18,7 @@ export class CreateDetalleVentaInput {
 export class CreateVentaDto {
   @ApiProperty({ description: 'Fecha en que se realiza la venta.', example: '2025-10-13T15:30:00Z' })
   @IsNotEmpty()
-  @IsDateString()
+  @IsDate()
   fecha_venta: Date;
 
   @ApiProperty({ description: 'ID del cliente asociado a la venta.', example: 3 })

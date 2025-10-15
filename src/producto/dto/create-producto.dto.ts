@@ -1,5 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, IsNumber, IsPositive, Min} from "class-validator";
+import { Transform } from "class-transformer";
+import { IsNotEmpty, IsString, IsNumber, IsPositive, Min, ValidateNested} from "class-validator";
+import { Linea } from "src/linea/entities/linea.entity";
+import { Marca } from "src/marca/entities/marca.entity";
 
 export class CreateProductoDto {
     @ApiProperty({example:'Zapatillas Azules', description:'Nombre del producto'})
@@ -22,13 +25,30 @@ export class CreateProductoDto {
     @IsNotEmpty()
     stock:number;
 
-    @ApiProperty({example: 1, description: 'ID de la marca'})
-    @IsNumber()
-    @IsNotEmpty()
-    marcaId: number;
+    // @ApiProperty({example: 1, description: 'ID de la marca'})
+    // @IsNumber()
+    // @IsNotEmpty()
+    // marcaId: number;
 
-    @ApiProperty({example: 1, description: 'ID de la línea (debe pertenecer a la marca seleccionada)'})
+    // @ApiProperty({example: 1, description: 'ID de la línea (debe pertenecer a la marca seleccionada)'})
+    // @IsNumber()
+    // @IsNotEmpty()
+    // lineaId: number;
+
+     @Transform(({ value }) => new IdDTO(value), { toClassOnly: true })
+    @ValidateNested()
+    marcaId: Marca;
+
+    @Transform(({ value }) => new IdDTO(value), { toClassOnly: true })
+    @ValidateNested()
+    lineaId: Linea;
+}
+
+
+class IdDTO {
+    constructor(id: number) {
+        this.id = id;
+    }
     @IsNumber()
-    @IsNotEmpty()
-    lineaId: number;
+    id: number;
 }

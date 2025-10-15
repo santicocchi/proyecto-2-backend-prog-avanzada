@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDetalleVentaDto } from './dto/create-detalle_venta.dto';
 import { UpdateDetalleVentaDto } from './dto/update-detalle_venta.dto';
 import { DetalleVentaRepository } from './detalle_venta.repository';
@@ -8,20 +8,23 @@ import { DetalleVentaMapper } from './helpers/detalle_venta.mapper';
 export class DetalleVentaService {
   constructor(private readonly detalleVentaRepository: DetalleVentaRepository) {}
 
-  async create(createDetalleVentaDto: CreateDetalleVentaDto) {
-    const detalle = await this.detalleVentaRepository.create(createDetalleVentaDto);
-    return DetalleVentaMapper.toResponse(detalle);
+  async create(dto: CreateDetalleVentaDto) {
+    try {
+      const detalle = await this.detalleVentaRepository.create(dto);
+      return DetalleVentaMapper.toResponse(detalle);
+    } catch (error) {
+      console.error('Error en DetalleVentaService.create:', error);
+      throw new HttpException('Error al crear detalle de venta', 500);
+    }
   }
-
   async findOne(id: number) {
     const detalle = await this.detalleVentaRepository.findOne(id);
-    if (!detalle) throw new NotFoundException('Detalle de venta no encontrado');
     return DetalleVentaMapper.toResponse(detalle);
   }
 
-  async update(id: number, updateDetalleVentaDto: UpdateDetalleVentaDto) {
-    const detalle = await this.detalleVentaRepository.update(id, updateDetalleVentaDto);
-    if (!detalle) throw new NotFoundException('Detalle de venta no encontrado');
+
+  async update(id: number, dto: any) {
+    const detalle = await this.detalleVentaRepository.update(id, dto);
     return DetalleVentaMapper.toResponse(detalle);
   }
 
@@ -29,4 +32,5 @@ export class DetalleVentaService {
     await this.detalleVentaRepository.softDelete(id);
     return DetalleVentaMapper.toDeleteResponse(id);
   }
+  
 }

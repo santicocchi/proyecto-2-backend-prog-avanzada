@@ -1,8 +1,11 @@
+import { UpdateVentaDto } from "../dto/update-venta.dto";
+import { Venta } from "../entities/venta.entity";
+
 export interface IVentaRepository {
-  create(data: any): Promise<any>;
-  findAll(order?: 'ASC' | 'DESC'): Promise<any[]>;
-  findAdvanced(filter: any): Promise<any[]>;
-  findOne(id: number): Promise<any>;
-  update(id: number, data: any): Promise<any>;
-  softDelete(id: number): Promise<any>;
+  create(data: Venta): Promise<Venta>;
+  findAll(order?: 'ASC' | 'DESC'): Promise<Venta[]>;
+  findAdvanced(filter: any): Promise<Venta[]>;
+  findOne(id: number): Promise<Venta>;
+  update(id: number, data: UpdateVentaDto): Promise<Venta>;
+  softDelete(id: number): Promise<void>;
 }

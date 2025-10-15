@@ -1,3 +1,4 @@
+// src/producto/entities/producto.entity.ts
 import { DetalleVenta } from "src/detalle_venta/entities/detalle_venta.entity";
 import { Linea } from "src/linea/entities/linea.entity";
 import { Marca } from "src/marca/entities/marca.entity";

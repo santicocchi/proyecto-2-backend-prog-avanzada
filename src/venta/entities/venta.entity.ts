@@ -1,4 +1,5 @@
-import { BaseEntity, Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
+//src/venta/entities/venta.entity.ts
+import { BaseEntity, Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from "typeorm";
 import { Cliente } from "src/cliente/entities/cliente.entity";
 import { FormaPago } from "src/forma_pago/entities/forma_pago.entity";
 import { DetalleVenta } from "src/detalle_venta/entities/detalle_venta.entity";
@@ -34,7 +35,8 @@ export class Venta extends BaseEntity{
     @ManyToOne(() => UserEntity)
     responsable: UserEntity;
 
-    @Column({ nullable: true })
+    // @Column({ nullable: true })
+    @DeleteDateColumn()
     deletedAt: Date;
 
 }

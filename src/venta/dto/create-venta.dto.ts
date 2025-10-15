@@ -1,3 +1,4 @@
+//src/venta/dto/create-venta.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsPositive, IsDateString, ValidateNested, ArrayMinSize, IsDate } from 'class-validator';
 import { Type } from 'class-transformer';

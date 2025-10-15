@@ -1,3 +1,4 @@
+// src/producto/producto.repository.ts
 import { CreateProductoDto } from "./dto/create-producto.dto";
 import { UpdateProductoDto } from "./dto/update-producto.dto";
 import { Producto } from "./entities/producto.entity";

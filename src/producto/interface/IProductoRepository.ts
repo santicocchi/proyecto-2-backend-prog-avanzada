@@ -1,3 +1,4 @@
+// src/producto/interface/IProductoRepository.ts
 import { Marca } from "src/marca/entities/marca.entity";
 import { CreateProductoDto } from "../dto/create-producto.dto";
 import { UpdateProductoDto } from "../dto/update-producto.dto";

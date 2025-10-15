@@ -1,3 +1,4 @@
+// src/producto/interface/IProducto.ts
 export interface IProducto {
     id: number;
     nombre: string;

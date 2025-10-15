@@ -1,3 +1,4 @@
+// src/producto/helpers/producto.mapper.ts
 import { Producto } from '../entities/producto.entity';
 
 export class ProductoMapper {

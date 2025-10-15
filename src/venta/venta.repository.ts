@@ -1,7 +1,9 @@
+//src/venta/venta.repository.ts
 import {
   Injectable,
   NotFoundException,
   HttpException,
+  BadRequestException,
 } from '@nestjs/common';
 import { DataSource, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,32 +23,49 @@ export class VentaRepository implements IVentaRepository {
 
     @InjectRepository(DetalleVenta)
     private readonly detalleVentaRepo: Repository<DetalleVenta>,
-  ) {}
+  ) { }
 
   //  Crear venta con transacción
   async create(data: Venta): Promise<Venta> {
     try {
       return await this.dataSource.transaction(async (manager) => {
-        // Guardar primero los detalles
-        const detallesGuardados: DetalleVenta[] = [];
-
-        for (const det of data.detallesVenta) {
-          const savedDet = await manager.save(DetalleVenta, det);
-          detallesGuardados.push(savedDet);
-        }
-
-        // Crear la venta con los detalles persistidos
+        // Guardar la venta
         const ventaEntity = manager.create(Venta, {
-          ...data,
-          detallesVenta: detallesGuardados,
+          fecha_venta: data.fecha_venta,
+          cliente: data.cliente,
+          formaPago: data.formaPago,
+          responsable: data.responsable,
+          total: data.total,
         });
 
         const ventaGuardada = await manager.save(Venta, ventaEntity);
-        return ventaGuardada;
+
+        // Guardar los detalles asociados
+        if (data.detallesVenta && data.detallesVenta.length > 0) {
+          for (const det of data.detallesVenta) {
+            det.ventas = ventaGuardada;
+            await manager.save(DetalleVenta, det);
+          }
+        }
+
+        // Retornar la venta completa con relaciones
+        return await manager.findOne(Venta, {
+          where: { id: ventaGuardada.id },
+          relations: [
+            'cliente',
+            'formaPago',
+            'responsable',
+            'detallesVenta',
+            'detallesVenta.producto',
+          ],
+        });
       });
     } catch (error) {
       console.error('Error en transacción de venta:', error);
-      throw new HttpException('Error al guardar la venta', 500);
+      throw new HttpException(
+        error.message || 'Error al guardar la venta',
+        error.status || 500,
+      );
     }
   }
 
@@ -66,7 +85,7 @@ export class VentaRepository implements IVentaRepository {
   }
 
   // Búsqueda avanzada con filtros
-  async findAdvanced(filter: any): Promise<Venta[]> {
+  async findAdvanced(filter: any): Promise<[Venta[], number]> {
     const qb = this.ventaRepo
       .createQueryBuilder('venta')
       .leftJoinAndSelect('venta.cliente', 'cliente')
@@ -75,7 +94,6 @@ export class VentaRepository implements IVentaRepository {
       .leftJoinAndSelect('venta.detallesVenta', 'detallesVenta')
       .leftJoinAndSelect('detallesVenta.producto', 'producto')
       .where('venta.deletedAt IS NULL');
-
     if (filter.clienteId)
       qb.andWhere('cliente.id = :clienteId', { clienteId: filter.clienteId });
     if (filter.formaPagoId)
@@ -85,7 +103,12 @@ export class VentaRepository implements IVentaRepository {
     if (filter.total)
       qb.andWhere('venta.total = :total', { total: filter.total });
 
-    return await qb.getMany();
+    const take = filter.take || 10;
+    const skip = ((filter.page || 1) - 1) * take;
+
+    qb.take(take).skip(skip).orderBy('venta.fecha_venta', 'DESC');
+
+    return await qb.getManyAndCount();
   }
 
   // Buscar una venta por ID

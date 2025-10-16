@@ -9,11 +9,11 @@ import { Permissions } from 'src/auth/permissions.enum';
 export class DetalleVentaController {
   constructor(private readonly detalleVentaService: DetalleVentaService) {}
 
-  @UseGuards(AuthGuardFactory(Permissions.CREAR_DETALLE_VENTA))
-  @Post()
-  create(@Body() createDetalleVentaDto: CreateDetalleVentaDto) {
-    return this.detalleVentaService.create(createDetalleVentaDto);
-  }
+  // @UseGuards(AuthGuardFactory(Permissions.CREAR_DETALLE_VENTA))
+  // @Post()
+  // create(@Body() createDetalleVentaDto: CreateDetalleVentaDto) {
+  //   return this.detalleVentaService.create(createDetalleVentaDto);
+  // }
 
   // @UseGuards(AuthGuardFactory(Permissions.LISTAR_DETALLE_VENTAS))
   // @Get()

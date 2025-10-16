@@ -22,6 +22,7 @@ import { ClienteRepository } from 'src/cliente/cliente.repository';
 import { FormaPagoRepository } from 'src/forma_pago/forma_pago.repository';
 import { UsersRepository } from 'src/auth/users/users.repository';
 import { TipoDocumentoModule } from 'src/tipo_documento/tipo_documento.module';
+import { VentaProviders } from './venta.providers';
 
 @Module({
   imports: [
@@ -36,31 +37,31 @@ import { TipoDocumentoModule } from 'src/tipo_documento/tipo_documento.module';
     TipoDocumentoModule
   ],
   controllers: [VentaController],
-  providers: [VentaService, VentaRepository,
-    {
-      provide: 'IVentaRepository',
-      useClass: VentaRepository
-    },
-    { provide: 'IProductoRepository'
-      , useClass: ProductoRepository
-     },
-     {
-      provide: 'IDetalleVentaRepository',
-      useClass: DetalleVentaRepository
-     },
-     {
-      provide: 'IClienteRepository',
-      useClass: ClienteRepository
-     },
-     {
-      provide: 'IFormaPagoRepository',
-      useClass: FormaPagoRepository
-     },
-     {
-      provide: 'IUserRepository',
-      useClass: UsersRepository
-     }
+  providers: [VentaService, ...VentaProviders,
+    // {
+    //   provide: 'IVentaRepository',
+    //   useClass: VentaRepository
+    // },
+    // { provide: 'IProductoRepository'
+    //   , useClass: ProductoRepository
+    //  },
+    //  {
+    //   provide: 'IDetalleVentaRepository',
+    //   useClass: DetalleVentaRepository
+    //  },
+    //  {
+    //   provide: 'IClienteRepository',
+    //   useClass: ClienteRepository
+    //  },
+    //  {
+    //   provide: 'IFormaPagoRepository',
+    //   useClass: FormaPagoRepository
+    //  },
+    //  {
+    //   provide: 'IUserRepository',
+    //   useClass: UsersRepository
+    //  }
   ],
-  exports: [VentaRepository],
+  exports: [VentaService, ...VentaProviders],
 })
 export class VentaModule {}

@@ -40,20 +40,38 @@ export class MarcaService {
     await this.marcaRepository.softDelete(id);
     return MarcaMapper.toDeleteResponse(marca);
   }
-  async assignLinea(marcaId: number, lineaId: number) {
-    const result = await this.marcaRepository.assignLinea(marcaId, lineaId);
-    if (!result.success) {
-      return { message: result.message };
-    }
-    return { message: result.message };
-  }
+
   
-  async removeLinea(marcaId: number, lineaId: number) {
-    const result = await this.marcaRepository.removeLinea(marcaId, lineaId);
-    if (!result.success) {
-      return { message: result.message };
+  async assignLinea(marcaId: number, lineaId: number) {
+    const marca = await this.marcaRepository.getMarcaWithLineas(marcaId);
+    if (!marca) throw new NotFoundException('Marca no encontrada');
+
+    const linea = await this.marcaRepository.getLineaById(lineaId);
+    if (!linea) throw new NotFoundException('Linea no encontrada');
+
+    if (marca.lineas && marca.lineas.some(l => l.id === linea.id)) {
+      return { message: `La linea ${linea.nombre} ya está asignada a la marca ${marca.nombre}` };
     }
-    return { message: result.message };
+
+    marca.lineas = [...(marca.lineas || []), linea];
+    await this.marcaRepository.saveMarca(marca);
+    return { message: `La linea ${linea.nombre} fue asignada a la marca ${marca.nombre} con exito` };
+  }
+
+  async removeLinea(marcaId: number, lineaId: number) {
+    const marca = await this.marcaRepository.getMarcaWithLineas(marcaId);
+    if (!marca) throw new NotFoundException('Marca no encontrada');
+
+    const linea = await this.marcaRepository.getLineaById(lineaId);
+    if (!linea) throw new NotFoundException('Linea no encontrada');
+
+    if (!marca.lineas || !marca.lineas.some(l => l.id === linea.id)) {
+      return { message: `La linea ${linea.nombre} no está asignada a la marca ${marca.nombre}` };
+    }
+
+    marca.lineas = marca.lineas.filter(l => l.id !== linea.id);
+    await this.marcaRepository.saveMarca(marca);
+    return { message: `La linea ${linea.nombre} fue eliminada de la marca ${marca.nombre} con exito` };
   }
   
 }

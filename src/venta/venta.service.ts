@@ -13,6 +13,7 @@ import { Venta } from './entities/venta.entity';
 import { FindAdvancedDto } from './dto/find-advanced.dto';
 import { EntityExistsValidator } from 'src/common/validators/entity-exists.validator';
 import { DataSource } from 'typeorm';
+import { DetalleVentaService } from 'src/detalle_venta/detalle_venta.service';
 
 @Injectable()
 export class VentaService {
@@ -27,6 +28,7 @@ export class VentaService {
     private readonly userRepo: IUserRepository,
     @Inject('IProductoRepository')
     private readonly productoRepo: IProductoRepository,
+    private readonly detalleVentaService: DetalleVentaService,
     private readonly dataSource: DataSource
 
   ) { }
@@ -50,39 +52,13 @@ export class VentaService {
           'Usuario responsable',
         );
 
-        // Preparar detalles y validar stock
-        const detalles: DetalleVenta[] = [];
-        let total = 0;
+        // Crear los detalles a través del servicio especializado
+        const { detalles, total } = await this.detalleVentaService.crearDetalles(
+          dto.detallesVenta,
+          manager,
+        );
 
-        for (const det of dto.detallesVenta) {
-          const producto = await EntityExistsValidator.validate(
-            this.productoRepo.findById(det.productoId),
-            `Producto con ID ${det.productoId}`,
-          );
-
-          //  Verificar stock disponible
-          if (producto.stock < det.cantidad) {
-            throw new BadRequestException(
-              `Stock insuficiente para el producto "${producto.nombre}". Disponible: ${producto.stock}, solicitado: ${det.cantidad}`,
-            );
-          }
-
-          // Calcular subtotal y preparar detalle
-          const subtotal = Number((det.cantidad * Number(producto.precio)).toFixed(2));
-
-          // Disminuir stock
-          await this.productoRepo.decreaseStock(producto.id, det.cantidad);
-
-          const detalle = new DetalleVenta();
-          detalle.cantidad = det.cantidad;
-          detalle.subtotal = subtotal;
-          detalle.producto = producto;
-
-          detalles.push(detalle);
-          total += subtotal;
-        }
-
-        //  Crear la venta (entidad principal)
+        // 3️⃣ Crear la venta (entidad principal)
         const venta = manager.create(Venta, {
           fecha_venta: dto.fecha_venta,
           cliente,
@@ -91,16 +67,16 @@ export class VentaService {
           total,
         });
 
-        //  Guardar venta primero (sin detalles aún)
+        // 4️⃣ Guardar venta primero (sin detalles aún)
         const ventaGuardada = await manager.save(Venta, venta);
 
-        //  Asociar los detalles a la venta
+        // 5️⃣ Asociar los detalles creados a la venta
         for (const det of detalles) {
           det.ventas = ventaGuardada;
           await manager.save(DetalleVenta, det);
         }
 
-        // Volver a cargar la venta completa con relaciones
+        // 6️⃣ Cargar la venta final con sus relaciones
         const ventaFinal = await manager.findOne(Venta, {
           where: { id: ventaGuardada.id },
           relations: [
@@ -122,7 +98,6 @@ export class VentaService {
       throw new HttpException('Error interno del servidor', 500);
     }
   }
-
   async findAll(order: 'ASC' | 'DESC' = 'ASC') {
     const ventas = await this.ventaRepository.findAll(order);
     return VentaMapper.toListResponse(ventas);

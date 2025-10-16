@@ -23,7 +23,7 @@ export class DetalleVentaRepository implements IDetalleVentaRepository {
       const producto = await this.productoRepo.findOne({
         where: { id: data.productoId, deletedAt: IsNull() },
       });
-      if (!producto) throw new BadRequestException('Producto no encontrado');
+      if (!producto) throw new HttpException('Producto no encontrado', 400);
 
       // Si se pasa ventaId (opcional)
       let venta: Venta = null;
@@ -31,10 +31,10 @@ export class DetalleVentaRepository implements IDetalleVentaRepository {
         venta = await this.ventaRepo.findOne({
           where: { id: data.ventaId, deletedAt: IsNull() },
         });
-        if (!venta) throw new BadRequestException('Venta no encontrada');
+        if (!venta) throw new HttpException('Venta no encontrada', 400);
       }
 
-      const subtotal = this.calcularSubtotal(data.cantidad, producto.precio);
+      const subtotal = this.calcularSubtotal(data.cantidad, producto.precio_con_impuesto);
 
       const detalle = this.detalleVentaRepo.create({
         cantidad: data.cantidad,
@@ -52,11 +52,14 @@ export class DetalleVentaRepository implements IDetalleVentaRepository {
 
   async findOne(id: number): Promise<DetalleVenta> {
     try {
-      const detalle = await this.detalleVentaRepo.findOne({
-        where: { id, deletedAt: IsNull() },
-        relations: ['producto', 'venta'],
-      });
-      if (!detalle) throw new NotFoundException('Detalle de venta no encontrado');
+      const detalle = await this.detalleVentaRepo
+        .createQueryBuilder('detalle')
+        .leftJoinAndSelect('detalle.producto', 'producto')
+        .leftJoinAndSelect('detalle.ventas', 'venta')
+        .where('detalle.id = :id', { id })
+        .andWhere('detalle.deletedAt IS NULL')
+        .getOne();
+      if (!detalle) throw new HttpException('Detalle de venta no encontrado', 404); 
       return detalle;
     } catch (error) {
       console.error('Error al buscar detalle de venta:', error);
@@ -80,7 +83,7 @@ export class DetalleVentaRepository implements IDetalleVentaRepository {
 
       const subtotal = this.calcularSubtotal(
         data.cantidad ?? detalle.cantidad,
-        producto.precio,
+        producto.precio_con_impuesto,
       );
 
       await this.detalleVentaRepo.update(id, {
@@ -100,7 +103,12 @@ export class DetalleVentaRepository implements IDetalleVentaRepository {
     try {
       const detalle = await this.findOne(id);
       if (!detalle) throw new NotFoundException('Detalle de venta no encontrado');
-      await this.detalleVentaRepo.update(id, { deletedAt: new Date() });
+      await this.detalleVentaRepo
+        .createQueryBuilder()
+        .update(DetalleVenta)
+        .set({ deletedAt: () => 'Date(now())' })
+        .where('id = :id', { id })
+        .execute();
     } catch (error) {
       console.error('Error al eliminar detalle de venta:', error);
       throw new HttpException('Error al eliminar el detalle de venta', 500);

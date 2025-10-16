@@ -1,10 +1,13 @@
 // src/producto/producto.controller.ts
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ProductoService } from './producto.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { AuthGuardFactory } from 'src/middleware/auth.middleware';
 import { Permissions } from 'src/auth/permissions.enum';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { FindAdvancedProductoDto } from './dto/find-advanced-producto.dto';
+import { FindAdvancedProductoPipe } from './pipes/find-advanced-producto.pipe';
 
 @Controller('producto')
 export class ProductoController {
@@ -25,8 +28,10 @@ export class ProductoController {
 
   @UseGuards(AuthGuardFactory(Permissions.LISTAR_PRODUCTOS))
   @Get('advanced')
-  advancedList(@Query() query: any) {
-    return this.productoService.advancedList(query);
+  @ApiOperation({ summary: 'Búsqueda avanzada de productos' })
+  @ApiResponse({ status: 200, description: 'Lista de productos filtrados' })
+  advancedList(@Query(FindAdvancedProductoPipe) filters: FindAdvancedProductoDto) { 
+    return this.productoService.advancedList(filters);
   }
 
   @UseGuards(AuthGuardFactory(Permissions.OBTENER_PRODUCTO))

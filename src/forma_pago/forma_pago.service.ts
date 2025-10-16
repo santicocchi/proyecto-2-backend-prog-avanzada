@@ -1,12 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFormaPagoDto } from './dto/create-forma_pago.dto';
 import { UpdateFormaPagoDto } from './dto/update-forma_pago.dto';
-import { FormaPagoRepository } from './forma_pago.repository';
-import { FormaPagoMapper } from './helpers/forma_pago.mapper';
+import { FormaPagoMapper } from './interface/forma_pago.mapper';
+import { IFormaPagoRepository } from './interface/IFormaPagoRepository';
 
 @Injectable()
 export class FormaPagoService {
-  constructor(private readonly formaPagoRepository: FormaPagoRepository) {}
+  constructor(
+    @Inject('IFormaPagoRepository')
+    private readonly formaPagoRepository: IFormaPagoRepository) {}
 
   async create(createFormaPagoDto: CreateFormaPagoDto) {
     const formaPago = await this.formaPagoRepository.create(createFormaPagoDto);

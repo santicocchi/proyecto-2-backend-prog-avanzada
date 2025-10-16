@@ -8,17 +8,12 @@ import { ProveedorXProductoRepository } from './proveedor_x_producto.repository'
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Proveedor } from '../proveedor/entities/proveedor.entity';
 import { Producto } from '../producto/entities/producto.entity';
+import { ProductoXProveedorProviders } from './proveedor_x_producto.providers';
 
 @Module({
   imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([ProveedorXProducto, Proveedor, Producto])],
   controllers: [ProveedorXProductoController],
-  providers: [
-    ProveedorXProductoService,
-    {
-      provide: 'IProveedorXProductoRepository',
-      useClass: ProveedorXProductoRepository
-    }
-  ],
-  exports: [ProveedorXProductoService, TypeOrmModule],
+  providers: [ProveedorXProductoService,...ProductoXProveedorProviders],
+  exports: [ProveedorXProductoService, ...ProductoXProveedorProviders],
 })
 export class ProveedorXProductoModule {}

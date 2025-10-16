@@ -8,6 +8,8 @@ export interface IMarcaRepository {
     create(data: CreateMarcaDto): Promise<Marca>;
     update(id: number, marca: UpdateMarcaDto): Promise<Marca | null>;
     softDelete(id: number): Promise<boolean>;
-    assignLinea(marcaId: number, lineaId: number): Promise<{ success: boolean; message: string }>;
-    removeLinea(marcaId: number, lineaId: number): Promise<{ success: boolean; message: string }>;
+    // Persistence helpers; business logic (assign/remove) lives in the service
+    getMarcaWithLineas(marcaId: number): Promise<Marca | null>;
+    getLineaById(lineaId: number): Promise<import('../../linea/entities/linea.entity').Linea | null>;
+    saveMarca(marca: Marca): Promise<Marca>;
 }

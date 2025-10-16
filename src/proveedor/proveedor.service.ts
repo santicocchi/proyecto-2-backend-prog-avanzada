@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProveedorDto } from './dto/create-proveedor.dto';
 import { UpdateProveedorDto } from './dto/update-proveedor.dto';
 import { IProveedorRepository } from './interface/IProveedorRepository';
-import { ProveedorMapper } from './helpers/proveedor.mapper';
+import { ProveedorMapper } from './interface/proveedor.mapper';
 
 @Injectable()
 export class ProveedorService {

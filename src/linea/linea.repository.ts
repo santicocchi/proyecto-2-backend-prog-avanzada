@@ -2,7 +2,7 @@ import { CreateLineaDto } from "./dto/create-linea.dto";
 import { UpdateLineaDto } from "./dto/update-linea.dto";
 import { Linea } from "./entities/linea.entity";
 import { ILineaRepository } from "./interface/ILineaRepository";
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { HttpException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Marca } from "../marca/entities/marca.entity";
@@ -22,7 +22,7 @@ export class LineaRepository implements ILineaRepository {
             const linea = this.repo.create({ nombre });
             return await this.repo.save(linea);
         } catch (error) {
-            throw new InternalServerErrorException('Error al crear la línea');
+            throw new HttpException('Error al crear la línea', 500);
         }
     }
 
@@ -33,7 +33,7 @@ export class LineaRepository implements ILineaRepository {
                 .where('linea.deletedAt IS NULL')
                 .getMany();
         } catch (error) {
-            throw new InternalServerErrorException('Error al obtener las líneas');
+            throw new HttpException('Error al obtener las líneas', 500);
         }
     }
 
@@ -45,7 +45,7 @@ export class LineaRepository implements ILineaRepository {
                 .andWhere('linea.deletedAt IS NULL')
                 .getOne();
         } catch (error) {
-            throw new InternalServerErrorException('Error al obtener la línea');
+            throw new HttpException('Error al obtener la línea', 500);
         }
     }
 
@@ -75,7 +75,7 @@ export class LineaRepository implements ILineaRepository {
             await this.repo.save(linea);
             return true;
         } catch (error) {
-            throw new InternalServerErrorException('Error al eliminar la línea');
+            throw new HttpException('Error al eliminar la línea', error.status || 500);
         }
     }
 }

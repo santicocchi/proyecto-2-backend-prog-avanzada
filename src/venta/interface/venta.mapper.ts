@@ -15,7 +15,7 @@ export class VentaMapper {
         precio_sin_impuesto: d.producto?.precio_sin_impuesto,
         precio_impuesto: d.producto?.precio_con_impuesto,
         cantidad: d.cantidad,
-        subtotal: d.subtotal, // opcional, podés quitarlo si no querés mostrarlo
+        subtotal: d.subtotal, 
       })),
       total: venta.total,
       createdAt: venta.createdAt,
@@ -29,7 +29,7 @@ export class VentaMapper {
       cliente: `${v.cliente.nombre} ${v.cliente.apellido}`,
       responsable: v.responsable.email,
       formaPago: v.formaPago.nombre,
-      // detallesVenta: v.detallesVenta,
+      //detallesVenta: v.detallesVenta,
       total: v.total,
     }));
   }
@@ -52,7 +52,7 @@ export class VentaMapper {
         marca: d.producto?.marca?.nombre,
         linea: d.producto?.linea?.nombre,
         cantidad: d.cantidad,
-        subtotal: d.subtotal, // opcional, podés quitarlo si no querés mostrarlo
+        subtotal: d.subtotal,
       })),
       total: venta.total,
       createdAt: venta.createdAt,

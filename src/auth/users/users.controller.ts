@@ -35,7 +35,6 @@ export class UsersController {
       id: user.id,
       role: user.role
     }
-    return HttpCode(200)
   }
 
   // @UseGuards(AuthGuard)

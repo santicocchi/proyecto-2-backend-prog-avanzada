@@ -18,8 +18,7 @@ export class Cliente extends BaseEntity {
 
     @Column({ length: 50 })
     telefono: string;
-
-
+    
     @CreateDateColumn()
     createdAt: Date;
 

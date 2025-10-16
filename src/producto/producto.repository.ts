@@ -45,7 +45,7 @@ export class ProductoRepository implements IProductoRepository {
             return await this.repo
                 .createQueryBuilder('producto')
                 .leftJoinAndSelect('producto.marca', 'marca')
-                .leftJoinAndSelect('marca.lineas', 'linea')
+                .leftJoinAndSelect('producto.linea', 'linea')
                 .leftJoinAndSelect('producto.proveedor_x_producto', 'pxp')
                 .leftJoinAndSelect('pxp.proveedor', 'proveedor')
                 .where('producto.deletedAt IS NULL')
@@ -61,7 +61,7 @@ export class ProductoRepository implements IProductoRepository {
             const producto = await this.repo
                 .createQueryBuilder('producto')
                 .leftJoinAndSelect('producto.marca', 'marca')
-                .leftJoinAndSelect('marca.lineas', 'linea')
+                .leftJoinAndSelect('producto.linea', 'linea')
                 .leftJoinAndSelect('producto.proveedor_x_producto', 'pxp')
                 .leftJoinAndSelect('pxp.proveedor', 'proveedor')
                 .where('producto.id = :id', { id })
@@ -79,7 +79,7 @@ export class ProductoRepository implements IProductoRepository {
             const producto = await this.repo
                 .createQueryBuilder('producto')
                 .leftJoinAndSelect('producto.marca', 'marca')
-                .leftJoinAndSelect('marca.lineas', 'linea')
+                .leftJoinAndSelect('producto.linea', 'linea')
                 .leftJoinAndSelect('producto.proveedor_x_producto', 'pxp')
                 .leftJoinAndSelect('pxp.proveedor', 'proveedor')
                 .where('producto.id = :id', { id })

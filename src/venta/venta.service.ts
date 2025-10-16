@@ -2,7 +2,7 @@
 import { BadRequestException, HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateVentaDto } from './dto/create-venta.dto';
 import { UpdateVentaDto } from './dto/update-venta.dto';
-import { VentaMapper } from './helpers/venta.mapper';
+import { VentaMapper } from './interface/venta.mapper';
 import { IVentaRepository } from './interface/IVentaRepository';
 import { IClienteRepository } from 'src/cliente/interface/IClienteRepository';
 import { IFormaPagoRepository } from 'src/forma_pago/interface/IFormaPagoRepository';
@@ -88,7 +88,7 @@ export class VentaService {
           ],
         });
 
-        return VentaMapper.toResponse(ventaFinal);
+        return VentaMapper.toCreateResponse(ventaFinal);
       });
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof NotFoundException)

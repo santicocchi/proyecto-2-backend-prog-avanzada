@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable, HttpException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TipoDocumento } from "./entities/tipo_documento.entity";
 import { CreateTipoDocumentoDto } from "./dto/create-tipo_documento.dto";
@@ -18,7 +18,7 @@ export class TipoDocumentoRepository implements ITipoDocumentoRepository{
             const entity = this.repo.create(dto);
             return await this.repo.save(entity);
         } catch (error) {
-            throw new InternalServerErrorException('Error al crear el tipo de documento');
+            throw new HttpException('Error al crear el tipo de documento', 500);
         }
     }
 
@@ -26,7 +26,7 @@ export class TipoDocumentoRepository implements ITipoDocumentoRepository{
         try {
             return await this.repo.find();
         } catch (error) {
-            throw new InternalServerErrorException('Error al obtener los tipos de documento');
+            throw new HttpException('Error al obtener los tipos de documento', 500);
         }
     }
 
@@ -34,7 +34,7 @@ export class TipoDocumentoRepository implements ITipoDocumentoRepository{
         try {
             return await this.repo.findOne({ where: { id } });
         } catch (error) {
-            throw new InternalServerErrorException('Error al obtener el tipo de documento');
+            throw new HttpException('Error al obtener el tipo de documento', 500);
         }
     }
 
@@ -47,7 +47,7 @@ export class TipoDocumentoRepository implements ITipoDocumentoRepository{
             this.repo.merge(entity, dto);
             return await this.repo.save(entity);
         } catch (error) {
-            throw new InternalServerErrorException('Error al actualizar el tipo de documento');
+            throw new HttpException('Error al actualizar el tipo de documento', 500);
         }
     }
 

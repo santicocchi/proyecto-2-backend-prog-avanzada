@@ -7,17 +7,12 @@ import { Linea } from './entities/linea.entity';
 import { Marca } from '../marca/entities/marca.entity';
 import { LineaRepository } from './linea.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LineaProviders } from './linea.providers';
 
 @Module({
   imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([Linea, Marca])],
   controllers: [LineaController],
-  providers: [
-    LineaService,
-    {
-      provide: 'ILineaRepository',
-      useClass: LineaRepository
-    }
-  ],
-  exports: [LineaService, TypeOrmModule],
+  providers: [LineaService, ...LineaProviders],
+  exports: [LineaService, ...LineaProviders],
 })
 export class LineaModule {}

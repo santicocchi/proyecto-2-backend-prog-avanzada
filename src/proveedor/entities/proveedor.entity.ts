@@ -1,3 +1,4 @@
+// src/proveedor/entities/proveedor.entity.ts
 import { Producto } from "src/producto/entities/producto.entity";
 import { ProveedorXProducto } from "src/proveedor_x_producto/entities/proveedor_x_producto.entity";
 import { BaseEntity, Column, CreateDateColumn, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";

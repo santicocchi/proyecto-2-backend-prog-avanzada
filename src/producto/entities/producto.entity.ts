@@ -18,10 +18,16 @@ export class Producto extends BaseEntity {
     descripcion: string;
 
     @Column('decimal', { precision: 10, scale: 2 })
-    precio: number;
+    precio_sin_impuesto: number;
 
     @Column({ type: 'int' })
     stock: number;
+
+    @Column({ type: 'int' })
+    impuesto: number;
+
+    @Column({ type: 'int' })
+    precio_con_impuesto: number;
     
     @CreateDateColumn()
     createdAt: Date;

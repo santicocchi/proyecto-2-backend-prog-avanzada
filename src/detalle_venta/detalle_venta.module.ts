@@ -12,24 +12,21 @@ import { VentaModule } from 'src/venta/venta.module';
 import { ProductoModule } from 'src/producto/producto.module';
 import { VentaRepository } from 'src/venta/venta.repository';
 import { Venta } from 'src/venta/entities/venta.entity';
+import { DetalleVentaProviders } from './detalle_venta.providers';
 
 @Module({
   imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([DetalleVenta, Producto, Venta]), forwardRef(() => VentaModule), ProductoModule],
   controllers: [DetalleVentaController],
-  providers: [DetalleVentaService, DetalleVentaRepository,
-    {
-      provide: 'IDetalleVentaRepository',
-      useClass: DetalleVentaRepository
-    },
-    {
-      provide: 'IProductoRepository',
-      useClass: ProductoRepository
-    },
-    {
-      provide: 'IVentaRepository',
-      useClass: VentaRepository
-    }
+  providers: [DetalleVentaService,...DetalleVentaProviders,
+    // {
+    //   provide: 'IProductoRepository',
+    //   useClass: ProductoRepository
+    // },
+    // {
+    //   provide: 'IVentaRepository',
+    //   useClass: VentaRepository
+    // }
   ],
-  exports: [DetalleVentaRepository],
+  exports: [DetalleVentaService, ...DetalleVentaProviders],
 })
 export class DetalleVentaModule {}

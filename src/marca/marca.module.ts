@@ -7,17 +7,12 @@ import { Marca } from './entities/marca.entity';
 import { MarcaRepository } from './marca.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Linea } from '../linea/entities/linea.entity';
+import { MarcaProviders } from './marca.providers';
 
 @Module({
   imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([Marca, Linea])],
   controllers: [MarcaController],
-  providers: [
-    MarcaService,
-    {
-      provide: 'IMarcaRepository',
-      useClass: MarcaRepository
-    }
-  ],
-  exports: [MarcaService, TypeOrmModule],
+  providers: [MarcaService,...MarcaProviders],
+  exports: [MarcaService, ...MarcaProviders ],
 })
 export class MarcaModule {}

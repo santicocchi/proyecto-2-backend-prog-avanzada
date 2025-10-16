@@ -12,26 +12,23 @@ import { MarcaRepository } from 'src/marca/marca.repository';
 import { LineaRepository } from 'src/linea/linea.repository';
 import { LineaModule } from 'src/linea/linea.module';
 import { MarcaModule } from 'src/marca/marca.module';
+import { ProductoProviders } from './producto.providers';
 
 @Module({
   imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([Producto, Marca, ProveedorXProducto]), LineaModule, MarcaModule],
   controllers: [ProductoController],
   providers: [
-    ProductoService,
-    {
-      provide: 'IProductoRepository',
-      useClass: ProductoRepository
-    },
-    {
-      provide: 'IMarcaRepository',
-      useClass: MarcaRepository
-    },
-    {
-      provide: 'ILineaRepository',
-      useClass: LineaRepository
-    }
+    ProductoService,...ProductoProviders,
+    // {
+    //   provide: 'IMarcaRepository',
+    //   useClass: MarcaRepository
+    // },
+    // {
+    //   provide: 'ILineaRepository',
+    //   useClass: LineaRepository
+    // }
 
   ],
-  exports: [ProductoService, TypeOrmModule],
+  exports: [ProductoService, ...ProductoProviders],
 })
 export class ProductoModule {}

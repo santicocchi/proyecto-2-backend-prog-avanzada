@@ -26,7 +26,7 @@ export class MarcaRepository implements IMarcaRepository {
             }
             return await this.repo.save(marca);
         } catch (error) {
-            throw new InternalServerErrorException('Error al crear la marca');
+            throw new HttpException('Error al crear la marca', 500);
         }
     }
 
@@ -37,7 +37,7 @@ export class MarcaRepository implements IMarcaRepository {
                 .where('marca.deletedAt IS NULL')
                 .getMany();
         } catch (error) {
-            throw new InternalServerErrorException('Error al obtener las marcas');
+            throw new HttpException('Error al obtener las marcas', 500);
         }
     }
 
@@ -49,7 +49,7 @@ export class MarcaRepository implements IMarcaRepository {
                 .andWhere('marca.deletedAt IS NULL')
                 .getOne();
         } catch (error) {
-            throw new InternalServerErrorException('Error al obtener la marca');
+            throw new HttpException('Error al obtener la marca', 500);
         }
     }
 
@@ -68,7 +68,7 @@ export class MarcaRepository implements IMarcaRepository {
             }
             return await this.repo.save(marca);
         } catch (error) {
-            throw new InternalServerErrorException('Error al actualizar la marca');
+            throw new HttpException('Error al actualizar la marca', 500);
         }
     }
 
@@ -83,49 +83,35 @@ export class MarcaRepository implements IMarcaRepository {
             await this.repo.save(marca);
             return true;
         } catch (error) {
-            throw new InternalServerErrorException('Error al eliminar la marca');
+            throw new HttpException('Error al eliminar la marca', 500);
+        }
+    }
+    // Persistence helpers used by the service
+    async getMarcaWithLineas(marcaId: number): Promise<Marca | null> {
+        try {
+            return await this.repo.createQueryBuilder('marca')
+                .leftJoinAndSelect('marca.lineas', 'linea')
+                .where('marca.id = :id', { id: marcaId })
+                .andWhere('marca.deletedAt IS NULL')
+                .getOne();
+        } catch (error) {
+            throw new HttpException('Error al obtener la marca', 500);
         }
     }
 
-    async assignLinea(marcaId: number, lineaId: number): Promise<{ success: boolean; message: string }> {
+    async getLineaById(lineaId: number): Promise<Linea | null> {
         try {
-            const marca = await this.repo.createQueryBuilder('marca')
-                .leftJoinAndSelect('marca.lineas', 'linea')
-                .where('marca.id = :marcaId', { marcaId })
-                .andWhere('marca.deletedAt IS NULL')
-                .getOne();
-            if (!marca) throw new NotFoundException('Marca no encontrada');
-            const linea = await this.lineaRepo.findOne({ where: { id: lineaId, deletedAt: null } });
-            if (!linea) throw new NotFoundException('Linea no encontrada');
-            if (marca.lineas && marca.lineas.some(l => l.id === linea.id)) {
-                return { success: false, message: `La linea ${linea.nombre} ya está asignada a la marca ${marca.nombre}` };
-            }
-            marca.lineas = [...(marca.lineas || []), linea];
-            await this.repo.save(marca);
-            return { success: true, message: `La linea ${linea.nombre} fue asignada a la marca ${marca.nombre} con exito` };
+            return await this.lineaRepo.findOne({ where: { id: lineaId, deletedAt: null } });
         } catch (error) {
-            throw new HttpException('Error al asignar la línea a la marca', 500);
+            throw new HttpException('Error al obtener la linea', 500);
         }
     }
-    
-    async removeLinea(marcaId: number, lineaId: number): Promise<{ success: boolean; message: string }> {
+
+    async saveMarca(marca: Marca): Promise<Marca> {
         try {
-            const marca = await this.repo.createQueryBuilder('marca')
-                .leftJoinAndSelect('marca.lineas', 'linea')
-                .where('marca.id = :marcaId', { marcaId })
-                .andWhere('marca.deletedAt IS NULL')
-                .getOne();
-            if (!marca) throw new NotFoundException('Marca no encontrada');
-            const linea = await this.lineaRepo.findOne({ where: { id: lineaId, deletedAt: null } });
-            if (!linea) throw new NotFoundException('Linea no encontrada');
-            if (!marca.lineas || !marca.lineas.some(l => l.id === linea.id)) {
-                return { success: false, message: `La linea ${linea.nombre} no está asignada a la marca ${marca.nombre}` };
-            }
-            marca.lineas = marca.lineas.filter(l => l.id !== linea.id);
-            await this.repo.save(marca);
-            return { success: true, message: `La linea ${linea.nombre} fue eliminada de la marca ${marca.nombre} con exito` };
+            return await this.repo.save(marca);
         } catch (error) {
-            throw new HttpException('Error al eliminar la línea de la marca', 500);
+            throw new HttpException('Error al guardar la marca', 500);
         }
     }
 }

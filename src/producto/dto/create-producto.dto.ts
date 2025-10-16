@@ -36,7 +36,7 @@ export class CreateProductoDto {
     // @IsNotEmpty()
     // lineaId: number;
 
-     @Transform(({ value }) => new IdDTO(value), { toClassOnly: true })
+    @Transform(({ value }) => new IdDTO(value), { toClassOnly: true })
     @ValidateNested()
     marcaId: Marca;
 

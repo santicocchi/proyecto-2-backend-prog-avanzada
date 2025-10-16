@@ -11,13 +11,15 @@ export interface IProductoRepository {
     create(data: {
         nombre: string;
         descripcion: string;
-        precio: number;
+        precio_sin_impuesto: number;
         stock: number;
+        impuesto: number;
+        precio_con_impuesto: number;
         marca: Marca;
         linea: Linea;
     }): Promise<Producto>;
     update(id: number, producto: UpdateProductoDto): Promise<Producto | null>;
     softDelete(id: number): Promise<boolean>;
     decreaseStock(id: number, cantidad: number): Promise<Producto | null>;
-    advancedList(filters: any): Promise<Producto[]>;
+    advancedList(filters: any): Promise<[Producto[], number]>;
 }

@@ -1,14 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
-import { ClienteRepository } from './cliente.repository';
-import { ClienteMapper } from './helpers/cliente.mapper';
+import { ClienteMapper } from './interface/cliente.mapper';
+import { IClienteRepository } from './interface/IClienteRepository';
 
 @Injectable()
 export class ClienteService {
   constructor(
-    private readonly clienteRepository: ClienteRepository,
+    @Inject('IClienteRepository')
+    private readonly clienteRepository: IClienteRepository,
   ) {}
 
   async create(createClienteDto: CreateClienteDto) {

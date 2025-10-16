@@ -1,36 +1,89 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDetalleVentaDto } from './dto/create-detalle_venta.dto';
 import { UpdateDetalleVentaDto } from './dto/update-detalle_venta.dto';
-import { DetalleVentaRepository } from './detalle_venta.repository';
-import { DetalleVentaMapper } from './helpers/detalle_venta.mapper';
+import { DetalleVentaMapper } from './interface/detalle_venta.mapper';
+import { IDetalleVentaRepository } from './interface/IDetalleVentaRepository';
+import { CreateDetalleVentaInput } from 'src/venta/dto/create-venta.dto';
+import { EntityManager, In } from 'typeorm';
+import { DetalleVenta } from './entities/detalle_venta.entity';
+import { EntityExistsValidator } from 'src/common/validators/entity-exists.validator';
+import { IProducto } from 'src/producto/interface/IProducto';
+import { IProductoRepository } from 'src/producto/interface/IProductoRepository';
 
 @Injectable()
 export class DetalleVentaService {
-  constructor(private readonly detalleVentaRepository: DetalleVentaRepository) {}
+  constructor(
+    @Inject('IDetalleVentaRepository')
+    private readonly detalleVentaRepository: IDetalleVentaRepository,
+    @Inject('IProductoRepository')
+    private readonly productoRepo: IProductoRepository
+  
+  ) { }
 
-  async create(dto: CreateDetalleVentaDto) {
+  async crearDetalles(detallesInput: CreateDetalleVentaInput[], manager: EntityManager): Promise<{ detalles: DetalleVenta[], total: number }> {
+    const detalles: DetalleVenta[] = [];
+    let total = 0;
+
+    for (const det of detallesInput) {
+      const producto = await EntityExistsValidator.validate(
+        this.productoRepo.findById(det.productoId),
+        `Producto con ID ${det.productoId}`,
+      );
+
+      // Verificar stock
+      if (producto.stock < det.cantidad) {
+        throw new BadRequestException(
+          `Stock insuficiente para el producto "${producto.nombre}". Disponible: ${producto.stock}, solicitado: ${det.cantidad}`,
+        );
+      }
+
+      // Calcular subtotal
+      const subtotal = Number((det.cantidad * Number(producto.precio_con_impuesto)).toFixed(2));
+
+      // Disminuir stock dentro del mismo manager (para mantener atomicidad)
+      producto.stock -= det.cantidad;
+      await manager.save(producto);
+
+      // Crear el detalle de venta
+      const detalle = manager.create(DetalleVenta, {
+        cantidad: det.cantidad,
+        subtotal,
+        producto,
+      });
+
+      detalles.push(detalle);
+      total += subtotal;
+    }
+
+    return { detalles, total };
+  }
+
+  async findOne(id: number) {
     try {
-      const detalle = await this.detalleVentaRepository.create(dto);
+      const detalle = await this.detalleVentaRepository.findOne(id);
       return DetalleVentaMapper.toResponse(detalle);
     } catch (error) {
-      console.error('Error en DetalleVentaService.create:', error);
-      throw new HttpException('Error al crear detalle de venta', 500);
+      throw new HttpException('Error al obtener el detalle de venta', 500);
     }
-  }
-  async findOne(id: number) {
-    const detalle = await this.detalleVentaRepository.findOne(id);
-    return DetalleVentaMapper.toResponse(detalle);
   }
 
 
   async update(id: number, dto: any) {
-    const detalle = await this.detalleVentaRepository.update(id, dto);
-    return DetalleVentaMapper.toResponse(detalle);
+    try {
+      const detalle = await this.detalleVentaRepository.update(id, dto);
+      return DetalleVentaMapper.toResponse(detalle);
+    } catch (error) {
+      throw new HttpException('Error al actualizar el detalle de venta', 500);
+    }
   }
 
   async remove(id: number) {
-    await this.detalleVentaRepository.softDelete(id);
-    return DetalleVentaMapper.toDeleteResponse(id);
+    try {
+      await this.detalleVentaRepository.softDelete(id);
+      return DetalleVentaMapper.toDeleteResponse(id);
+    } catch (error) {
+      throw new HttpException('Error al eliminar el detalle de venta', 500);
+    }
   }
-  
+
 }

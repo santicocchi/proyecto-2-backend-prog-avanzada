@@ -48,17 +48,16 @@ export class VentaRepository implements IVentaRepository {
           }
         }
 
-        // Retornar la venta completa con relaciones
-        return await manager.findOne(Venta, {
-          where: { id: ventaGuardada.id },
-          relations: [
-            'cliente',
-            'formaPago',
-            'responsable',
-            'detallesVenta',
-            'detallesVenta.producto',
-          ],
-        });
+        // Retornar la venta completa con relaciones usando QueryBuilder
+        return await manager
+          .createQueryBuilder(Venta, 'venta')
+          .leftJoinAndSelect('venta.cliente', 'cliente')
+          .leftJoinAndSelect('venta.formaPago', 'formaPago')
+          .leftJoinAndSelect('venta.responsable', 'responsable')
+          .leftJoinAndSelect('venta.detallesVenta', 'detallesVenta')
+          .leftJoinAndSelect('detallesVenta.producto', 'producto')
+          .where('venta.id = :id', { id: ventaGuardada.id })
+          .getOne();
       });
     } catch (error) {
       console.error('Error en transacción de venta:', error);
@@ -71,17 +70,16 @@ export class VentaRepository implements IVentaRepository {
 
   // Obtener todas las ventas
   async findAll(order: 'ASC' | 'DESC' = 'ASC'): Promise<Venta[]> {
-    return await this.ventaRepo.find({
-      where: { deletedAt: IsNull() },
-      order: { fecha_venta: order },
-      relations: [
-        'cliente',
-        'formaPago',
-        'responsable',
-        'detallesVenta',
-        'detallesVenta.producto',
-      ],
-    });
+    return await this.ventaRepo
+      .createQueryBuilder('venta')
+      .leftJoinAndSelect('venta.cliente', 'cliente')
+      .leftJoinAndSelect('venta.formaPago', 'formaPago')
+      .leftJoinAndSelect('venta.responsable', 'responsable')
+      .leftJoinAndSelect('venta.detallesVenta', 'detallesVenta')
+      .leftJoinAndSelect('detallesVenta.producto', 'producto')
+      .where('venta.deletedAt IS NULL')
+      .orderBy('venta.fecha_venta', order)
+      .getMany();
   }
 
   // Búsqueda avanzada con filtros
@@ -113,16 +111,16 @@ export class VentaRepository implements IVentaRepository {
 
   // Buscar una venta por ID
   async findOne(id: number): Promise<Venta> {
-    const venta = await this.ventaRepo.findOne({
-      where: { id, deletedAt: IsNull() },
-      relations: [
-        'cliente',
-        'formaPago',
-        'responsable',
-        'detallesVenta',
-        'detallesVenta.producto',
-      ],
-    });
+    const venta = await this.ventaRepo
+      .createQueryBuilder('venta')
+      .leftJoinAndSelect('venta.cliente', 'cliente')
+      .leftJoinAndSelect('venta.formaPago', 'formaPago')
+      .leftJoinAndSelect('venta.responsable', 'responsable')
+      .leftJoinAndSelect('venta.detallesVenta', 'detallesVenta')
+      .leftJoinAndSelect('detallesVenta.producto', 'producto')
+      .where('venta.id = :id', { id })
+      .andWhere('venta.deletedAt IS NULL')
+      .getOne();
     if (!venta) throw new NotFoundException('Venta no encontrada');
     return venta;
   }
@@ -144,12 +142,22 @@ export class VentaRepository implements IVentaRepository {
     const venta = await this.findOne(id);
     if (!venta) throw new NotFoundException('Venta no encontrada');
 
-    // Marcar venta como eliminada
-    await this.ventaRepo.update(id, { deletedAt: new Date() });
+    // Marcar venta como eliminada usando QueryBuilder
+    await this.ventaRepo
+      .createQueryBuilder()
+      .update(Venta)
+      .set({ deletedAt: () => 'CURRENT_TIMESTAMP' })
+      .where('id = :id', { id })
+      .execute();
 
     // Marcar detalles como eliminados
     for (const detalle of venta.detallesVenta) {
-      await this.detalleVentaRepo.update(detalle.id, { deletedAt: new Date() });
+      await this.detalleVentaRepo
+        .createQueryBuilder()
+        .update(DetalleVenta)
+        .set({ deletedAt: () => 'CURRENT_TIMESTAMP' })
+        .where('id = :id', { id: detalle.id })
+        .execute();
     }
   }
 }

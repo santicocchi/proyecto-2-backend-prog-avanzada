@@ -22,7 +22,7 @@ export class ClienteRepository implements IClienteRepository {
                 where: { id: dto.tipo_documento, deletedAt: IsNull() },
             });
             if (!tipoDocumento) {
-                throw new NotFoundException(`Tipo de documento ${dto.tipo_documento} no encontrado`);
+                throw new HttpException(`Tipo de documento ${dto.tipo_documento} no encontrado`, 404);
             }
 
             const existe = await this.clienteRepo.findOne({
@@ -107,7 +107,7 @@ export class ClienteRepository implements IClienteRepository {
                 .andWhere('cliente.deletedAt IS NULL')
                 .getOne();
 
-            if (!cliente) throw new NotFoundException(`Cliente con id ${id} no encontrado`);
+            if (!cliente) throw new HttpException(`Cliente con id ${id} no encontrado`, 404);
             return cliente;
         } catch (error) {
             if (error instanceof NotFoundException) throw error;
@@ -121,7 +121,9 @@ export class ClienteRepository implements IClienteRepository {
                 where: { id, deletedAt: IsNull() },
                 relations: ['tipo_documento'],
             });
-            if (!cliente) throw new NotFoundException(`Cliente con id ${id} no encontrado`);
+            if (!cliente) throw new HttpException(`Cliente con id ${id} no encontrado`, 404);
+
+            // Desestructurar para separar tipo_documento del resto de datos
 
             const { tipo_documento: tipoDocumentoId, ...restoDatos } = data;
 
@@ -130,7 +132,7 @@ export class ClienteRepository implements IClienteRepository {
                     where: { id: tipoDocumentoId, deletedAt: IsNull() },
                 });
                 if (!tipoDocumento) {
-                    throw new NotFoundException(`Tipo de documento ${tipoDocumentoId} no encontrado`);
+                    throw new HttpException(`Tipo de documento ${tipoDocumentoId} no encontrado`, 404);
                 }
                 cliente.tipo_documento = tipoDocumento;
             }
@@ -154,7 +156,7 @@ export class ClienteRepository implements IClienteRepository {
                 .execute();
 
             if (result.affected === 0)
-                throw new NotFoundException(`Cliente con id ${id} no encontrado`);
+                throw new HttpException(`Cliente con id ${id} no encontrado`, 404);
         } catch (error) {
             if (error instanceof NotFoundException) throw error;
             throw new HttpException('Error al eliminar el cliente', 500);

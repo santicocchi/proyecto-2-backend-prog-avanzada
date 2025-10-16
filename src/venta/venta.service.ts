@@ -132,19 +132,31 @@ export class VentaService {
   }
 
   async findOne(id: number) {
-    const venta = await this.ventaRepository.findOne(id);
-    if (!venta) throw new NotFoundException('Venta no encontrada');
-    return VentaMapper.toResponse(venta);
+    try {
+      const venta = await this.ventaRepository.findOne(id);
+      if (!venta) throw new NotFoundException('Venta no encontrada');
+      return VentaMapper.toResponse(venta);
+    } catch (error) {
+      throw new HttpException('Error interno del servidor', 500);
+    }
   }
 
   async update(id: number, updateVentaDto: UpdateVentaDto) {
-    const venta = await this.ventaRepository.update(id, updateVentaDto);
-    if (!venta) throw new NotFoundException('Venta no encontrada');
-    return VentaMapper.toResponse(venta);
+    try {
+      const venta = await this.ventaRepository.update(id, updateVentaDto);
+      if (!venta) throw new NotFoundException('Venta no encontrada');
+      return VentaMapper.toResponse(venta);
+    } catch (error) {
+      throw new HttpException('Error interno del servidor', 500);
+    }
   }
 
   async remove(id: number) {
-    await this.ventaRepository.softDelete(id);
-    return VentaMapper.toDeleteResponse(id);
+    try {
+      await this.ventaRepository.softDelete(id);
+      return VentaMapper.toDeleteResponse(id);
+    } catch (error) {
+      throw new HttpException('Error interno del servidor', 500);
+    }
   }
 }

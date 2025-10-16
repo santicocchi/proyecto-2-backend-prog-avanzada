@@ -21,6 +21,7 @@ export class DetalleVentaService {
   ) { }
 
   async crearDetalles(detallesInput: CreateDetalleVentaInput[], manager: EntityManager): Promise<{ detalles: DetalleVenta[], total: number }> {
+    try {
     const detalles: DetalleVenta[] = [];
     let total = 0;
 
@@ -56,6 +57,9 @@ export class DetalleVentaService {
     }
 
     return { detalles, total };
+    } catch (error) {
+      throw new HttpException('Error al crear los detalles de venta', 500);
+    }
   }
 
   async findOne(id: number) {

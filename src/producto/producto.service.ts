@@ -55,7 +55,7 @@ export class ProductoService {
       // Mapear la respuesta
       return ProductoMapper.toCreateResponse(producto);
     } catch (error) {
-      throw new HttpException('Error al crear el producto', 500);
+      throw new HttpException(error.message || 'Error al crear el producto', error.status || 500);
     }
   }
 
@@ -64,7 +64,7 @@ export class ProductoService {
       const productos = await this.productoRepository.findAll(options);
       return ProductoMapper.toListResponse(productos);
     } catch (error) {
-      throw new HttpException('Error al obtener los productos', 500);
+      throw new HttpException(error.message ?? 'Error al obtener los productos', error.status ?? 500);
     }
   }
 
@@ -86,7 +86,10 @@ export class ProductoService {
       if (!producto) throw new NotFoundException('Producto no encontrado');
       return ProductoMapper.toResponse(producto);
     } catch (error) {
-      throw new HttpException('Error al obtener el producto', 500);
+      if (error) {
+        if (error instanceof HttpException) throw error;
+        throw new HttpException(error.message ?? 'Error al obtener el producto', error.status ?? 500);
+      }
     }
   }
 
@@ -96,6 +99,7 @@ export class ProductoService {
       if (!producto) throw new NotFoundException('Producto no encontrado');
       return ProductoMapper.toResponse(producto);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al actualizar el producto', 500);
     }
   }
@@ -106,6 +110,7 @@ export class ProductoService {
       if (!producto) throw new NotFoundException('Producto no encontrado');
       return ProductoMapper.toResponse(producto);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al disminuir el stock del producto', 500);
     }
   }
@@ -117,6 +122,7 @@ export class ProductoService {
       await this.productoRepository.softDelete(id);
       return ProductoMapper.toDeleteResponse(producto);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al eliminar el producto', 500);
     }
   }

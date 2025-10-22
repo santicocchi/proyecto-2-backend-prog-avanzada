@@ -16,6 +16,7 @@ export class FormaPagoService {
       const formaPago = await this.formaPagoRepository.create(createFormaPagoDto);
       return FormaPagoMapper.toCreateResponse(formaPago);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al crear la forma de pago', 500);
     }
   }
@@ -25,6 +26,7 @@ export class FormaPagoService {
       const formasPago = await this.formaPagoRepository.findAll();
       return FormaPagoMapper.toListResponse(formasPago);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al obtener las formas de pago', 500);
     }
   }
@@ -35,6 +37,7 @@ export class FormaPagoService {
       if (!formaPago) throw new NotFoundException('Forma de pago no encontrada');
       return FormaPagoMapper.toGetResponse(formaPago);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new NotFoundException('Forma de pago no encontrada');
     }
   }
@@ -45,6 +48,7 @@ export class FormaPagoService {
       if (!formaPago) throw new NotFoundException('Forma de pago no encontrada');
       return FormaPagoMapper.toUpdateResponse(formaPago);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error interno del servidor', 500);
     }
   }
@@ -54,6 +58,7 @@ export class FormaPagoService {
     if (!formaPago) throw new NotFoundException('Forma de pago no encontrada');
     return FormaPagoMapper.toDeleteResponse(formaPago);
   } catch (error) {
+    if (error instanceof HttpException) throw error;
     throw new HttpException('Error interno del servidor', 500);
   }
   }

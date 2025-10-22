@@ -58,7 +58,8 @@ export class DetalleVentaService {
 
     return { detalles, total };
     } catch (error) {
-      throw new HttpException('Error al crear los detalles de venta', 500);
+      
+      throw new HttpException(error.message || 'Error al crear los detalles de venta', error.status || 500);
     }
   }
 

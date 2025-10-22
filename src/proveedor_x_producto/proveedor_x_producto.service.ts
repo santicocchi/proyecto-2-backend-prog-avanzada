@@ -16,6 +16,7 @@ export class ProveedorXProductoService {
       const pxp = await this.pxpRepository.create(createDto);
       return ProveedorXProductoMapper.toCreateResponse(pxp);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al crear la relación proveedor-producto', 500);
     }
   }
@@ -25,6 +26,7 @@ export class ProveedorXProductoService {
       const pxps = await this.pxpRepository.findAll();
       return ProveedorXProductoMapper.toListResponse(pxps);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al obtener las relaciones proveedor-producto', 500);
     }
   }
@@ -35,6 +37,7 @@ export class ProveedorXProductoService {
       if (!pxp) throw new NotFoundException('Relación proveedor-producto no encontrada');
       return ProveedorXProductoMapper.toResponse(pxp);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al obtener la relación proveedor-producto', 500);
     }
   }
@@ -45,6 +48,7 @@ export class ProveedorXProductoService {
       if (!pxp) throw new NotFoundException('Relación proveedor-producto no encontrada');
       return ProveedorXProductoMapper.toResponse(pxp);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al actualizar la relación proveedor-producto', 500);
     }
   }
@@ -56,6 +60,7 @@ export class ProveedorXProductoService {
       await this.pxpRepository.softDelete(id);
       return ProveedorXProductoMapper.toDeleteResponse(pxp);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al eliminar la relación proveedor-producto', 500);
     }
   }

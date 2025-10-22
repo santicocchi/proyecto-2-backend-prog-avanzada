@@ -16,6 +16,7 @@ export class MarcaService {
     const marca = await this.marcaRepository.create(createMarcaDto);
     return MarcaMapper.toCreateResponse(marca);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al crear la marca', 500);
     }
   }
@@ -25,6 +26,7 @@ export class MarcaService {
     const marcas = await this.marcaRepository.findAll();
     return MarcaMapper.toListResponse(marcas);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al obtener las marcas', 500);
     }
   }
@@ -35,6 +37,7 @@ export class MarcaService {
     if (!marca) throw new NotFoundException('Marca no encontrada');
     return MarcaMapper.toResponse(marca);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al obtener la marca', 500);
     }
   }
@@ -45,6 +48,7 @@ export class MarcaService {
     if (!marca) throw new NotFoundException('Marca no encontrada');
     return MarcaMapper.toResponse(marca);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al actualizar la marca', 500);
     }
   }
@@ -57,6 +61,7 @@ export class MarcaService {
     await this.marcaRepository.softDelete(id);
     return MarcaMapper.toDeleteResponse(marca);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al eliminar la marca', 500);
     }
   }
@@ -78,6 +83,7 @@ export class MarcaService {
     await this.marcaRepository.saveMarca(marca);
     return { message: `La linea ${linea.nombre} fue asignada a la marca ${marca.nombre} con exito` };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al asignar la linea a la marca', 500);
     }
   }
@@ -98,6 +104,7 @@ export class MarcaService {
     await this.marcaRepository.saveMarca(marca);
     return { message: `La linea ${linea.nombre} fue eliminada de la marca ${marca.nombre} con exito` };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error al eliminar la linea de la marca', 500);
     }
   }

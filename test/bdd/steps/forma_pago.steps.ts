@@ -1,10 +1,10 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
 import { FormaPagoService } from 'src/forma_pago/forma_pago.service';
 import { FormaPagoRepository } from 'src/forma_pago/forma_pago.repository';
-import { FormaPagoMapper } from 'src/forma_pago/helpers/forma_pago.mapper';
 import { FormaPago } from 'src/forma_pago/entities/forma_pago.entity';
 import { CreateFormaPagoDto } from 'src/forma_pago/dto/create-forma_pago.dto';
 import { UpdateFormaPagoDto } from 'src/forma_pago/dto/update-forma_pago.dto';
+import { FormaPagoMapper } from 'src/forma_pago/interface/forma_pago.mapper';
 
 const feature = loadFeature('./test/bdd/features/forma_pago.feature');
 
@@ -103,6 +103,33 @@ defineFeature(feature, test => {
     });
   });
 
+  test('Crear una forma de pago con error', ({ given, when, then }) => {
+    let dto: any;
+    let error: any;
+
+    given('que tengo caida la base de datos', () => {
+      // Simulamos que el repo lanza un error de conexión
+      (repoMock.create as jest.Mock).mockImplementationOnce(async () => {
+        throw new Error('Fallo de conexión con la base de datos');
+      });
+      dto = { nombre: 'Transferencia' };
+    });
+
+    when('la creo mediante create', async () => {
+      try {
+        await service.create(dto);
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then('debería recibir un error "Error al crear la forma de pago"', () => {
+      expect(error.status).toBe(500);
+      expect(error.message).toBe('Error al crear la forma de pago');
+    });
+  });
+
+
   test('Listar todas las formas de pago', ({ given, when, then }) => {
     let response: any;
 
@@ -113,11 +140,13 @@ defineFeature(feature, test => {
     });
 
     then('debería recibir un listado de formas de pago', () => {
-      expect(response).toEqual([{ id: 1, nombre: 'Tarjeta', 
-                                        createdAt: new Date(),
-                                        updatedAt : new Date(),
-                                        deletedAt : null,
-                                        ventas : [] }]);
+      expect(response).toEqual([{
+        id: 1, nombre: 'Tarjeta',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null,
+        ventas: []
+      }]);
     });
   });
 
@@ -164,4 +193,90 @@ defineFeature(feature, test => {
       expect(response).toHaveProperty('deletedAt');
     });
   });
+
+  test('Listar formas de pago con error', ({ given, when, then }) => {
+    let error: any;
+
+    given('que el repositorio lanza un error al listar las formas de pago', () => {
+      (repoMock.findAll as jest.Mock).mockImplementationOnce(async () => {
+        throw new Error('DB error');
+      });
+    });
+
+    when('intento listar todas las formas de pago', async () => {
+      try {
+        await service.findAll();
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then(/^debería lanzarse un error con mensaje "(.*)"$/, mensaje => {
+      expect(error.message).toBe(mensaje);
+    });
+  });
+
+  test('Buscar una forma de pago inexistente', ({ given, when, then }) => {
+    let error: any;
+
+    given('que no existe una forma de pago con id 999', () => {
+      (repoMock.findOne as jest.Mock).mockResolvedValueOnce(null);
+    });
+
+    when('intento obtener la forma de pago con id 999', async () => {
+      try {
+        await service.findOne(999);
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then(/^debería lanzarse un error con mensaje "(.*)"$/, mensaje => {
+      expect(error.message).toBe(mensaje);
+    });
+  });
+
+  test('Actualizar una forma de pago inexistente', ({ given, when, then }) => {
+    let error: any;
+    let dto: any;
+
+    given('que no existe una forma de pago con id 999 para actualizar', () => {
+      (repoMock.update as jest.Mock).mockResolvedValueOnce(null);
+    });
+
+    when(/^intento actualizar la forma de pago con id 999 con nombre "(.*)"$/, async nombre => {
+      dto = { nombre };
+      try {
+        await service.update(999, dto);
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then(/^debería lanzarse un error con mensaje "(.*)"$/, mensaje => {
+      expect(error.message).toBe(mensaje);
+    });
+  });
+
+  test('Eliminar una forma de pago inexistente', ({ given, when, then }) => {
+    let error: any;
+
+    given('que no existe una forma de pago con id 999 para eliminar', () => {
+      (repoMock.softDelete as jest.Mock).mockResolvedValueOnce(null);
+    });
+
+    when('intento eliminar la forma de pago con id 999', async () => {
+      try {
+        await service.remove(999);
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then(/^debería lanzarse un error con mensaje "(.*)"$/, mensaje => {
+      expect(error.message).toBe(mensaje);
+    });
+  });
 });
+
+

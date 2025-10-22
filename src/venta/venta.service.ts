@@ -26,8 +26,7 @@ export class VentaService {
     private readonly formaPagoRepo: IFormaPagoRepository,
     @Inject('IUserRepository')
     private readonly userRepo: IUserRepository,
-    @Inject('IProductoRepository')
-    private readonly productoRepo: IProductoRepository,
+
     private readonly detalleVentaService: DetalleVentaService,
     private readonly dataSource: DataSource
 
@@ -125,7 +124,7 @@ export class VentaService {
         },
       };
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
+      if (error instanceof HttpException) throw error;
       console.error(error);
       throw new HttpException('Error interno del servidor', 500);
     }
@@ -137,25 +136,30 @@ export class VentaService {
       if (!venta) throw new NotFoundException('Venta no encontrada');
       return VentaMapper.toResponse(venta);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Error interno del servidor', 500);
     }
   }
 
-  async update(id: number, updateVentaDto: UpdateVentaDto) {
-    try {
-      const venta = await this.ventaRepository.update(id, updateVentaDto);
-      if (!venta) throw new NotFoundException('Venta no encontrada');
-      return VentaMapper.toResponse(venta);
-    } catch (error) {
-      throw new HttpException('Error interno del servidor', 500);
-    }
-  }
+  // async update(id: number, updateVentaDto: UpdateVentaDto) {
+  //   try {
+  //     const venta = await this.ventaRepository.update(id, updateVentaDto);
+  //     if (!venta) throw new NotFoundException('Venta no encontrada');
+  //     return VentaMapper.toResponse(venta);
+  //   } catch (error) {
+  //     if (error instanceof HttpException) throw error;
+
+  //     throw new HttpException('Error interno del servidor', 500);
+  //   }
+  // }
 
   async remove(id: number) {
     try {
       await this.ventaRepository.softDelete(id);
       return VentaMapper.toDeleteResponse(id);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+
       throw new HttpException('Error interno del servidor', 500);
     }
   }

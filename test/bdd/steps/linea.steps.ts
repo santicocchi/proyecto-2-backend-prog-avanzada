@@ -157,4 +157,114 @@ defineFeature(feature, test => {
       expect(response).toHaveProperty('message', 'La Linea Electrónica con id 1 fue eliminada exitosamente.');
     });
   });
+
+  
+  test('Crear una línea con error', ({ given, when, then }) => {
+    let dto: CreateLineaDto;
+    let error: any;
+
+    given('que el repositorio lanza un error al crear una línea', () => {
+      (repoMock.create as jest.Mock).mockImplementationOnce(async () => {
+        throw new Error('DB error');
+      });
+    });
+
+    when(/^intento crear una nueva línea con nombre "(.*)"$/, async nombre => {
+      dto = { nombre };
+      try {
+        await service.create(dto);
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then(/^debería lanzarse un error con mensaje "(.*)"$/, mensaje => {
+      expect(error).toBeInstanceOf(Error);
+      expect(error.message).toBe(mensaje);
+    });
+  });
+
+  test('Listar líneas con error', ({ given, when, then }) => {
+    let error: any;
+
+    given('que el repositorio lanza un error al listar las líneas', () => {
+      (repoMock.findAll as jest.Mock).mockImplementationOnce(async () => {
+        throw new Error('DB error');
+      });
+    });
+
+    when('intento listar todas las líneas', async () => {
+      try {
+        await service.findAll();
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then(/^debería lanzarse un error con mensaje "(.*)"$/, mensaje => {
+      expect(error.message).toBe(mensaje);
+    });
+  });
+
+  test('Buscar una línea inexistente', ({ given, when, then }) => {
+    let error: any;
+
+    given('que no existe una línea con id 999', () => {
+      (repoMock.findById as jest.Mock).mockResolvedValueOnce(null);
+    });
+
+    when('intento obtener la línea con id 999', async () => {
+      try {
+        await service.findOne(999);
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then(/^debería lanzarse un error con mensaje "(.*)"$/, mensaje => {
+      expect(error.message).toBe(mensaje);
+    });
+  });
+
+  test('Actualizar una línea inexistente', ({ given, when, then }) => {
+    let dto: UpdateLineaDto;
+    let error: any;
+
+    given('que no existe una línea con id 999 para actualizar', () => {
+      (repoMock.update as jest.Mock).mockResolvedValueOnce(null);
+    });
+
+    when(/^intento actualizar la línea con id 999 con nombre "(.*)"$/, async nombre => {
+      dto = { nombre };
+      try {
+        await service.update(999, dto);
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then(/^debería lanzarse un error con mensaje "(.*)"$/, mensaje => {
+      expect(error.message).toBe(mensaje);
+    });
+  });
+
+  test('Eliminar una línea inexistente', ({ given, when, then }) => {
+    let error: any;
+
+    given('que no existe una línea con id 999 para eliminar', () => {
+      (repoMock.findById as jest.Mock).mockResolvedValueOnce(null);
+    });
+
+    when('intento eliminar la línea con id 999', async () => {
+      try {
+        await service.remove(999);
+      } catch (err) {
+        error = err;
+      }
+    });
+
+    then(/^debería lanzarse un error con mensaje "(.*)"$/, mensaje => {
+      expect(error.message).toBe(mensaje);
+    });
+  });
 });

@@ -16,6 +16,7 @@ export class ProveedorService {
     const proveedor = await this.proveedorRepository.create(createProveedorDto);
     return ProveedorMapper.toCreateResponse(proveedor);
     } catch (error) {
+      if(error instanceof HttpException) throw error;
       throw new HttpException('Error al crear el proveedor', 500);
     }
   }
@@ -25,6 +26,7 @@ export class ProveedorService {
     const proveedores = await this.proveedorRepository.findAll();
     return ProveedorMapper.toListResponse(proveedores);
     } catch (error) {
+      if(error instanceof HttpException) throw error;
       throw new HttpException('Error al obtener los proveedores', 500);
     }
   }
@@ -35,6 +37,7 @@ export class ProveedorService {
     if (!proveedor) throw new NotFoundException('Proveedor no encontrado');
     return ProveedorMapper.toResponse(proveedor);
     } catch (error) {
+      if(error instanceof HttpException) throw error;
       throw new HttpException('Error al obtener el proveedor', 500);
     }
   }
@@ -45,6 +48,7 @@ export class ProveedorService {
     if (!proveedor) throw new NotFoundException('Proveedor no encontrado');
     return ProveedorMapper.toResponse(proveedor);
     } catch (error) {
+      if(error instanceof HttpException) throw error;
       throw new HttpException('Error al actualizar el proveedor', 500);
     }
   }
@@ -56,6 +60,7 @@ export class ProveedorService {
     await this.proveedorRepository.softDelete(id);
     return ProveedorMapper.toDeleteResponse(proveedor);
     } catch (error) {
+      if(error instanceof HttpException) throw error;
       throw new HttpException('Error al eliminar el proveedor', 500);
     }
   }

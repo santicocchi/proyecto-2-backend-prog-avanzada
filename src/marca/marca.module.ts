@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MarcaService } from './marca.service';
 import { MarcaController } from './marca.controller';
 import { JwtModule } from 'src/auth/jwt/jwt.module';
@@ -8,9 +8,10 @@ import { MarcaRepository } from './marca.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Linea } from '../linea/entities/linea.entity';
 import { MarcaProviders } from './marca.providers';
+import { ProductoModule } from 'src/producto/producto.module';
 
 @Module({
-  imports: [JwtModule, UsersModule, TypeOrmModule.forFeature([Marca, Linea])],
+  imports: [JwtModule, UsersModule, forwardRef(() => ProductoModule),TypeOrmModule.forFeature([Marca, Linea]), ],
   controllers: [MarcaController],
   providers: [MarcaService,...MarcaProviders],
   exports: [MarcaService, ...MarcaProviders ],

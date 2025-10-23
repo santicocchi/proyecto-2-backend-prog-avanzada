@@ -14,7 +14,7 @@ export class MarcaRepository implements IMarcaRepository {
         private readonly repo: Repository<Marca>,
         @InjectRepository(Linea)
         private readonly lineaRepo: Repository<Linea>
-    ) {}
+    ) { }
 
     async create(dto: CreateMarcaDto): Promise<Marca> {
         try {
@@ -43,8 +43,10 @@ export class MarcaRepository implements IMarcaRepository {
 
     async findById(id: number): Promise<Marca | null> {
         try {
-            return await this.repo.createQueryBuilder('marca')
-                .leftJoinAndSelect('marca.lineas', 'linea')
+            return await this.repo
+                .createQueryBuilder('marca')
+                .leftJoinAndSelect('marca.lineas', 'linea', 'linea.deletedAt IS NULL')
+                .leftJoinAndSelect('marca.productos', 'producto', 'producto.deletedAt IS NULL')
                 .where('marca.id = :id', { id })
                 .andWhere('marca.deletedAt IS NULL')
                 .getOne();
@@ -52,6 +54,7 @@ export class MarcaRepository implements IMarcaRepository {
             throw new HttpException('Error al obtener la marca', 500);
         }
     }
+
 
     async update(id: number, dto: UpdateMarcaDto): Promise<Marca | null> {
         try {

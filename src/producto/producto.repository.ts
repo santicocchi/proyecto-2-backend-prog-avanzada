@@ -39,9 +39,8 @@ export class ProductoRepository implements IProductoRepository {
         }
     }
 
-    async findAll(options?: any): Promise<Producto[]> {
+    async findAll(): Promise<Producto[]> {
         try {
-            // Aquí puedes agregar filtros y ordenamientos según options
             return await this.repo
                 .createQueryBuilder('producto')
                 .leftJoinAndSelect('producto.marca', 'marca')

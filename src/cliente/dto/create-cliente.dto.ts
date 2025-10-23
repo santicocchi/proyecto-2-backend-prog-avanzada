@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MaxLength, IsOptional, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, IsOptional, IsNumber, MinLength } from 'class-validator';
 
 export class CreateClienteDto {
 	@IsNotEmpty()
@@ -13,7 +13,8 @@ export class CreateClienteDto {
 
 	@IsNotEmpty()
 	@IsString()
-	@MaxLength(20)
+	@MinLength(7)
+	@MaxLength(10)
 	num_documento: string;
 
 	@IsNotEmpty()

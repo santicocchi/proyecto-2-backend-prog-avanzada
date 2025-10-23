@@ -45,11 +45,11 @@ export class VentaController {
     return this.ventaService.findOne(+id);
   }
 
-  @UseGuards(AuthGuardFactory(Permissions.EDITAR_VENTA))
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVentaDto: UpdateVentaDto) {
-    return this.ventaService.update(+id, updateVentaDto);
-  }
+  // @UseGuards(AuthGuardFactory(Permissions.EDITAR_VENTA))
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateVentaDto: UpdateVentaDto) {
+  //   return this.ventaService.update(+id, updateVentaDto);
+  // }
 
   @UseGuards(AuthGuardFactory(Permissions.ELIMINAR_VENTA))
   @Delete(':id')

@@ -9,6 +9,7 @@ export class MarcaMapper {
       createdAt: marca.createdAt,
       updatedAt: marca.updatedAt,
       lineas: marca.lineas?.map(l => ({ id: l.id, nombre: l.nombre })) || [],
+      productos: marca.productos?.map(p => ({ id: p.id, nombre: p.nombre })) || [],
     };
   }
 

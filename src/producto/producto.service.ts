@@ -117,9 +117,21 @@ export class ProductoService {
 
   async remove(id: number) {
     try {
+      // Buscar el producto
       const producto = await this.productoRepository.findById(id);
       if (!producto) throw new NotFoundException('Producto no encontrado');
+
+      // 2️⃣ Validar el stock
+      if (producto.stock > 0) {
+        throw new BadRequestException(
+          `No se puede eliminar el producto ${producto.nombre} porque aún tiene stock (${producto.stock}).`,
+        );
+      }
+
+      //Realizar el soft delete
       await this.productoRepository.softDelete(id);
+
+      //Mapear la respuesta
       return ProductoMapper.toDeleteResponse(producto);
     } catch (error) {
       if (error instanceof HttpException) throw error;

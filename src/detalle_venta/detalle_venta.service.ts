@@ -32,11 +32,11 @@ export class DetalleVentaService {
       );
 
       // Verificar stock
-      if (producto.stock < det.cantidad) {
-        throw new BadRequestException(
-          `Stock insuficiente para el producto "${producto.nombre}". Disponible: ${producto.stock}, solicitado: ${det.cantidad}`,
-        );
-      }
+      // if (producto.stock < det.cantidad) {
+      //   throw new BadRequestException(
+      //     `Stock insuficiente para el producto "${producto.nombre}". Disponible: ${producto.stock}, solicitado: ${det.cantidad}`,
+      //   );
+      // }
 
       // Calcular subtotal
       const subtotal = Number((det.cantidad * Number(producto.precio_con_impuesto)).toFixed(2));
@@ -58,8 +58,10 @@ export class DetalleVentaService {
 
     return { detalles, total };
     } catch (error) {
-      
-      throw new HttpException(error.message || 'Error al crear los detalles de venta', error.status || 500);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error al crear los detalles de venta', 500);
     }
   }
 

@@ -12,8 +12,8 @@ export class ProductoMapper {
       impuesto: producto.impuesto,
       precio_con_impuesto: producto.precio_con_impuesto,
       stock: producto.stock,
-      marca: producto.marca.nombre,
-      linea: producto.linea.nombre,
+      marca: producto.marca,
+      linea: producto.linea,
       proveedores: producto.proveedor_x_producto?.map(pxp => ({
         nombre: pxp.proveedor?.nombre,
         precio_proveedor: pxp.precio_proveedor,

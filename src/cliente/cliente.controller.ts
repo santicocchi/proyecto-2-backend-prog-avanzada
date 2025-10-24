@@ -17,7 +17,7 @@ export class ClienteController {
 
   @UseGuards(AuthGuardFactory(Permissions.LISTAR_CLIENTES))
   @Get()
-  findAll(@Query() query: any) {
+  findAll(@Query() query: any): Promise<{data: any[], total: number}> {
     return this.clienteService.findAll(query);
   }
 

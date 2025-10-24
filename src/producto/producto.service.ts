@@ -59,14 +59,14 @@ export class ProductoService {
     }
   }
 
-  async findAll(options?: any) {
-    try {
-      const productos = await this.productoRepository.findAll(options);
-      return ProductoMapper.toListResponse(productos);
-    } catch (error) {
-      throw new HttpException(error.message ?? 'Error al obtener los productos', error.status ?? 500);
-    }
-  }
+  // async findAll(options?: any) {
+  //   try {
+  //     const productos = await this.productoRepository.findAll(options);
+  //     return ProductoMapper.toListResponse(productos);
+  //   } catch (error) {
+  //     throw new HttpException(error.message ?? 'Error al obtener los productos', error.status ?? 500);
+  //   }
+  // }
 
   async advancedList(filters: FindAdvancedProductoDto) {
     try {

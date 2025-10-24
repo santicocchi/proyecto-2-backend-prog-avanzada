@@ -39,21 +39,7 @@ export class ProductoRepository implements IProductoRepository {
         }
     }
 
-    async findAll(): Promise<Producto[]> {
-        try {
-            return await this.repo
-                .createQueryBuilder('producto')
-                .leftJoinAndSelect('producto.marca', 'marca')
-                .leftJoinAndSelect('producto.linea', 'linea')
-                .leftJoinAndSelect('producto.proveedor_x_producto', 'pxp')
-                .leftJoinAndSelect('pxp.proveedor', 'proveedor')
-                .where('producto.deletedAt IS NULL')
-                .orderBy('producto.id', 'ASC')
-                .getMany();
-        } catch (error) {
-            throw new HttpException('Error al obtener los productos', 500);
-        }
-    }
+  
 
     async findById(id: number): Promise<Producto | null> {
         try {
@@ -172,10 +158,10 @@ export class ProductoRepository implements IProductoRepository {
 
             //Filtrar por precio (rango)
             if (filters.precioDesde !== undefined) {
-                qb.andWhere('producto.precio >= :precioDesde', { precioDesde: filters.precioDesde });
+                qb.andWhere('producto.precio_con_impuesto >= :precioDesde', { precioDesde: filters.precioDesde });
             }
             if (filters.precioHasta !== undefined) {
-                qb.andWhere('producto.precio <= :precioHasta', { precioHasta: filters.precioHasta });
+                qb.andWhere('producto.precio_con_impuesto <= :precioHasta', { precioHasta: filters.precioHasta });
             }
 
             //Filtrar por código de proveedor

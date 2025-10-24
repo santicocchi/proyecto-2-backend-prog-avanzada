@@ -6,7 +6,7 @@ import { Producto } from "../entities/producto.entity";
 import { Linea } from "src/linea/entities/linea.entity";
 
 export interface IProductoRepository {
-    findAll(options?: any): Promise<Producto[]>;
+    // findAll(options?: any): Promise<Producto[]>;
     findById(id: number): Promise<Producto | null>;
     create(data: {
         nombre: string;

@@ -130,7 +130,7 @@ export class ProductoRepository implements IProductoRepository {
         try {
             const producto = await this.repo.findOne({ where: { id, deletedAt: null } });
             if (!producto) throw new NotFoundException('Producto no encontrado');
-            producto.stock = Math.max(0, producto.stock - cantidad);
+            producto.stock = producto.stock - cantidad
             return await this.repo.save(producto);
         } catch (error) {
             throw new HttpException('Error al disminuir el stock del producto', 500);

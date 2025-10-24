@@ -11,37 +11,29 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Dominio base permitido (por ejemplo .midominio.com)
-  const allowedDomain = process.env.CORS_ALLOWED_DOMAIN || '.localhost';
+const allowedDomains = (process.env.CORS_ALLOWED_DOMAINS || '')
+  .split(',')
+  .map((d) => d.trim())
+  .filter(Boolean);
 
-  // Configurar CORS para permitir todos los subdominios del dominio principal
-  app.enableCors({
-    origin: (origin, callback) => {
-      // Permitir herramientas sin "origin" (Postman, backend interno, etc.)
-      if (!origin) return callback(null, true);
+app.enableCors({
+  origin: (origin, callback) => {
+    // Permitir herramientas sin origin (Postman, etc.)
+    if (!origin) return callback(null, true);
 
-      try {
-        // Permitir cualquier subdominio del dominio principal
-        const regex = new RegExp(
-  `^https?:\\/\\/([a-z0-9-]+\\.)?${allowedDomain.replace('.', '\\.')}$`,
-  'i',
-);
+    const isAllowed = allowedDomains.some((domain) => origin === domain);
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 
+    if (isAllowed || isLocalhost) {
+      callback(null, true);
+    } else {
+      console.warn(`❌ CORS bloqueado para: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+});
 
-        // También permitir localhost en desarrollo
-        const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-
-        if (regex.test(origin) || isLocalhost) {
-          callback(null, true);
-        } else {
-          console.warn(`❌ CORS bloqueado para: ${origin}`);
-          callback(new Error('Not allowed by CORS'));
-        }
-      } catch (err) {
-        callback(new Error('Invalid CORS configuration'));
-      }
-    },
-    credentials: true,
-  });
 
     // ---- Swagger / OpenAPI ----
   const swaggerConfig = new DocumentBuilder()

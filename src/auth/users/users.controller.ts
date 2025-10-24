@@ -47,6 +47,7 @@ export class UsersController {
       httpOnly: config().cookies.httpOnly,
       secure: config().cookies.secure,
       sameSite: config().cookies.sameSite,
+      domain: config().cookies.domain,
       path: '/',
     });
 
@@ -54,6 +55,7 @@ export class UsersController {
       httpOnly: config().cookies.httpOnly,
       secure: config().cookies.secure,
       sameSite: config().cookies.sameSite,
+      domain: config().cookies.domain,
       path: '/users/refresh-token',
     });
     return { message: 'Logout exitoso' };
@@ -73,6 +75,7 @@ export class UsersController {
       httpOnly: config().cookies.httpOnly,
       secure: config().cookies.secure,
       sameSite: config().cookies.sameSite,
+      domain: config().cookies.domain,
       maxAge: expirationTime,
       path: '/',
     });
@@ -81,6 +84,7 @@ export class UsersController {
       httpOnly: config().cookies.httpOnly,
       secure: config().cookies.secure,
       sameSite: config().cookies.sameSite,
+      domain: config().cookies.domain,
       maxAge: 12 * 60 * 60 * 1000, // 12h
       path: '/users/refresh-token',
     });
@@ -106,6 +110,7 @@ export class UsersController {
         httpOnly: config().cookies.httpOnly,
         secure: config().cookies.secure,
         sameSite: config().cookies.sameSite,
+        domain: config().cookies.domain,
         maxAge: tokens.expirationTime || 780000,
         path: '/',
       });
@@ -116,6 +121,7 @@ export class UsersController {
         httpOnly: config().cookies.httpOnly,
         secure: config().cookies.secure,
         sameSite: config().cookies.sameSite,
+        domain: config().cookies.domain,
         maxAge: 12 * 60 * 60 * 1000,
         path: '/users/refresh-token',
       });

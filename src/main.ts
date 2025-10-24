@@ -12,10 +12,7 @@ async function bootstrap() {
 
   // CORS simple y funcional
   app.enableCors({
-    origin: [
-      process.env.CORS_ALLOWED_ORIGIN,
-      'http://localhost:3000', // para desarrollo local
-    ],
+    origin: process.env.CORS_ALLOWED_ORIGIN,
     credentials: true,
   });
 

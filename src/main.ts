@@ -10,51 +10,29 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Dominio base permitido (por ejemplo .midominio.com)
-const allowedDomains = (process.env.CORS_ALLOWED_DOMAINS || '')
-  .split(',')
-  .map((d) => d.trim())
-  .filter(Boolean);
-
-app.enableCors({
-  origin: (origin, callback) => {
-    // Permitir herramientas sin origin (Postman, etc.)
-    if (!origin) return callback(null, true);
-
-    const isAllowed = allowedDomains.some((domain) => origin === domain);
-    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-
-    if (isAllowed || isLocalhost) {
-      callback(null, true);
-    } else {
-      console.warn(`❌ CORS bloqueado para: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-});
-
-
-    // ---- Swagger / OpenAPI ----
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Sistema de gestión de ventas')             // Título visible en Swagger UI
-    .setDescription('API para el sistema de gestión de ventas') // Descripción
-    .setVersion('1.0')                           // Versión
-    .build();
-
-  const document = SwaggerModule.createDocument(app, swaggerConfig, {});
-
-  // Monta Swagger UI en /docs 
-  SwaggerModule.setup('docs', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true, // conserva el token al refrescar la página
-    },
+  // CORS simple y funcional
+  app.enableCors({
+    origin: [
+      process.env.CORS_ALLOWED_ORIGIN,
+      'http://localhost:3000', // para desarrollo local
+    ],
+    credentials: true,
   });
 
-  // Habilitar cookies
-  app.use(cookieParser());
+  // Swagger
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Sistema de gestión de ventas')
+    .setDescription('API para el sistema de gestión de ventas')
+    .setVersion('1.0')
+    .build();
 
-  // Validaciones globales
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: { persistAuthorization: true },
+  });
+
+  // Cookies y validaciones
+  app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -65,6 +43,8 @@ app.enableCors({
   );
 
   await app.listen(process.env.PORT ?? 3001);
+  console.log(` API corriendo en puerto ${process.env.PORT ?? 3001}`);
+  console.log(` CORS permitido para: ${process.env.CORS_ALLOWED_ORIGIN}`);
 }
 
 bootstrap();

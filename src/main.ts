@@ -22,9 +22,10 @@ async function bootstrap() {
       try {
         // Permitir cualquier subdominio del dominio principal
         const regex = new RegExp(
-          `^https?:\\/\\/([a-z0-9-]+\\.)*${allowedDomain.replace('.', '\\.')}$`,
-          'i',
-        );
+  `^https?:\\/\\/([a-z0-9-]+\\.)?${allowedDomain.replace('.', '\\.')}$`,
+  'i',
+);
+
 
         // También permitir localhost en desarrollo
         const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);

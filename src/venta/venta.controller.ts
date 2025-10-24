@@ -21,11 +21,11 @@ export class VentaController {
     return this.ventaService.create(createVentaDto);
   }
 
-  @UseGuards(AuthGuardFactory(Permissions.LISTAR_VENTAS))
-  @Get()
-  findAll() {
-    return this.ventaService.findAll();
-  }
+  // @UseGuards(AuthGuardFactory(Permissions.LISTAR_VENTAS))
+  // @Get()
+  // findAll() {
+  //   return this.ventaService.findAll();
+  // }
 
   @UseGuards(AuthGuardFactory(Permissions.LISTAR_VENTAS))
   @Get('advanced')

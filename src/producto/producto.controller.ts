@@ -19,12 +19,12 @@ export class ProductoController {
     return this.productoService.create(createProductoDto);
   }
 
-  @UseGuards(AuthGuardFactory(Permissions.LISTAR_PRODUCTOS))
-  @Get()
-  findAll(@Query() query: any) {
-    // query puede tener filtros de ordenamiento: sort, order, etc.
-    return this.productoService.findAll(query);
-  }
+  // @UseGuards(AuthGuardFactory(Permissions.LISTAR_PRODUCTOS))
+  // @Get()
+  // findAll(@Query() query: any) {
+  //   // query puede tener filtros de ordenamiento: sort, order, etc.
+  //   return this.productoService.findAll(query);
+  // }
 
   @UseGuards(AuthGuardFactory(Permissions.LISTAR_PRODUCTOS))
   @Get('advanced')

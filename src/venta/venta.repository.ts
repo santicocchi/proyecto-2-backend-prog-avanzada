@@ -69,23 +69,6 @@ export class VentaRepository implements IVentaRepository {
   }
 
   // Obtener todas las ventas
-  async findAll(order: 'ASC' | 'DESC' = 'ASC'): Promise<Venta[]> {
-    try {
-      return await this.ventaRepo
-        .createQueryBuilder('venta')
-        .leftJoinAndSelect('venta.cliente', 'cliente')
-        .leftJoinAndSelect('venta.formaPago', 'formaPago')
-        .leftJoinAndSelect('venta.responsable', 'responsable')
-        .leftJoinAndSelect('venta.detallesVenta', 'detallesVenta')
-        .leftJoinAndSelect('detallesVenta.producto', 'producto')
-        .where('venta.deletedAt IS NULL')
-        .orderBy('venta.fecha_venta', order)
-        .getMany();
-    } catch (error) {
-      console.error('Error al obtener las ventas:', error);
-      throw new HttpException('Error al obtener las ventas', 500);
-    }
-  }
 
   // Búsqueda avanzada con filtros
   async findAdvanced(filter: any): Promise<[Venta[], number]> {

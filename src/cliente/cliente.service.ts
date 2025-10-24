@@ -16,10 +16,13 @@ export class ClienteService {
     return ClienteMapper.toResponse(cliente);
   }
 
-  async findAll(filter: any = {}) {
-    const clientes = await this.clienteRepository.findAll(filter);
-    return ClienteMapper.toResponseList(clientes);
+  async findAll(filter: any = {}): Promise<{data: any[], total: number}> {
+    const {data, total} = await this.clienteRepository.findAll(filter);
+    const response = ClienteMapper.toResponseList(data);
+
+    return { data: response, total : total };
   }
+
 
   async findOne(id: number) {
     const cliente = await this.clienteRepository.findOne(id);

@@ -97,12 +97,12 @@ export class VentaService {
       throw new HttpException('Error interno del servidor', 500);
     }
   }
-  async findAll(order: 'ASC' | 'DESC' = 'ASC') {
-    const ventas = await this.ventaRepository.findAll(order);
-    return VentaMapper.toListResponse(ventas);
-  }
+  // async findAll(order: 'ASC' | 'DESC' = 'ASC') {
+  //   const ventas = await this.ventaRepository.findAll(order);
+  //   return VentaMapper.toListResponse(ventas);
+  // }
 
-  async findAdvanced(filter: FindAdvancedDto) {
+  async findAdvanced(filter: FindAdvancedDto): Promise<{ data: any[]; total: number }> {
     try {
       if (filter?.clienteId)
         await EntityExistsValidator.validate(this.clienteRepo.findOne(filter.clienteId), 'Cliente');
@@ -117,11 +117,7 @@ export class VentaService {
 
       return {
         data: VentaMapper.toListResponse(ventas),
-        pagination: {
-          total,
-          page: filter.page,
-          take: filter.take,
-        },
+        total: total,
       };
     } catch (error) {
       if (error instanceof HttpException) throw error;

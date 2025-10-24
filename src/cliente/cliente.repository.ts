@@ -56,7 +56,7 @@ export class ClienteRepository implements IClienteRepository {
         }
     }
 
-    async findAll(filter: any): Promise<Cliente[]> {
+    async findAll(filter: any): Promise<{data: Cliente[], total: number}> {
         try {
             const qb = this.clienteRepo
                 .createQueryBuilder('cliente')
@@ -89,10 +89,17 @@ export class ClienteRepository implements IClienteRepository {
                     telefono: `%${filter.telefono}%`,
                 });
             }
+            
+            const take = filter.take || 10;
+            const skip = ((filter.page || 1) - 1) * take;
+            qb.take(take).skip(skip).orderBy('cliente.nombre', 'ASC');
 
-            qb.orderBy('cliente.id', 'ASC');
+            // qb.orderBy('cliente.id', 'ASC');
 
-            return await qb.getMany();
+            const [data, total] = await qb.getManyAndCount();
+
+            return {data, total};
+
         } catch (error) {
             throw new HttpException('Error al obtener los clientes', 500);
         }
